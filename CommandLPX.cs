@@ -9,6 +9,8 @@ using SDG.Unturned;
 using System.Data;
 using System.Collections.Generic;
 
+//TEST
+
 namespace LIGHT
 {
     public class CommandLPX : IRocketCommand
