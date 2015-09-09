@@ -9,8 +9,6 @@ using SDG.Unturned;
 using System.Data;
 using System.Collections.Generic;
 
-//TEST
-
 namespace LIGHT
 {
     public class CommandLPX : IRocketCommand
@@ -353,18 +351,29 @@ namespace LIGHT
                                 }
                                 else if(param.Length == 2)
                                 {
-                                    if (LIGHT.Instance.Database.AddGroup(param[0], param[1]))
+                                    decimal income = 0M;
+                                    if (decimal.TryParse(param[1], out income))
+                                    {
+                                        if (LIGHT.Instance.Database.AddGroup(param[0], param[1]))
+                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_group", param[0]));
+                                        else
+                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_group", param[0]));
+                                    }
+                                    else
+                                    {
+                                        UnturnedChat.Say(caller, "Please only enter numbers in <income>");
+                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addgroup"));
+                                    }
+                                }
+                                else if(param.Length == 1)
+                                {
+                                    if (LIGHT.Instance.Database.AddGroup(param[0], "10"))
                                         UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_group", param[0]));
                                     else
                                         UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_group", param[0]));
                                 }
                                 else
-                                {
-                                    if (LIGHT.Instance.Database.AddGroup(param[0], "0"))
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_group", param[0]));
-                                    else
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_group", param[0]));
-                                }
+                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_invaild_para"));                             
                             }
                             break;
                         case "removegroup":

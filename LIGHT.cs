@@ -8,6 +8,12 @@ using System.Linq;
 using UnityEngine;
 using Rocket.Core;
 using Rocket.API;
+using SDG.Unturned;
+using unturned.ROCKS.Uconomy;   
+using Steamworks;
+using System;
+using System.Collections.Generic;
+using Rocket.Unturned.Plugins;
 
 namespace LIGHT
 {
@@ -37,6 +43,7 @@ namespace LIGHT
                 return new TranslationList(){
                 {"lpx_no_perm","You have no permission to that command!"},
                 {"lpx_invaild","Invalid command!"},
+                {"lpx_invaild_para","Invalid Parameter!"},
                 {"lpx_help","/lpx adduser, /lpx removeuser, /lpx addpermission, /lpx removepermission, /lpx addgroup, /lpx removegroup, /lpx listgroup, /lpx setgroupincome}"},
                 {"lpx_help_adduser","/lpx adduser <playername> <group>"},
                 {"lpx_help_adduser2","Missing <group> parameter!"},
@@ -99,11 +106,10 @@ namespace LIGHT
                 {
                     
                     cmd = permission[i].Split('.');
-                    Color? color = UnturnedChat.GetColorFromName(cmd[1], Color.blue);
+                    Color? color = UnturnedChat.GetColorFromName(cmd[1], Color.white);
                     player.Color = color.Value;
                 }
             }
         }
-
     }
 }

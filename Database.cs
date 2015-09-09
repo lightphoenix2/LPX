@@ -370,8 +370,9 @@ namespace LIGHT
                 command.CommandText = "select `group` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` where `steamId` = '" + id + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
-                if (result != null) exist = result.ToString();
                 connection.Close();
+                if (result != null) exist = result.ToString();
+                else return "default";              
             }
             catch (Exception ex)
             {

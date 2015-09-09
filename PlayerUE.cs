@@ -40,8 +40,9 @@ namespace LIGHT
                     Logger.Log(pay2.ToString());
                     if (LIGHT.Instance.Database.CheckUserGroup(this.Player.Id).ToLower() == s.ToLower())
                     {
-                        pay = pay2;
+                        pay = pay2;                      
                         paygroup = s;
+                        if (s == "defualt") paygroup = "Player";
                     }
                 }
                 if (pay == 0.0m)

@@ -31,34 +31,30 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Unturned_Data\Managed\Assembly-CSharp.dll</HintPath>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>lib\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Unturned_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>lib\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="I18N">
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Servers\Light Server\Rocket\Plugins\Libraries\I18N.dll</HintPath>
+      <HintPath>lib\I18N.dll</HintPath>
     </Reference>
     <Reference Include="I18N.West">
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Servers\Light Server\Rocket\Plugins\Libraries\I18N.West.dll</HintPath>
+      <HintPath>lib\I18N.West.dll</HintPath>
     </Reference>
     <Reference Include="MySql.Data, Version=6.9.7.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Servers\Light Server\Rocket\Plugins\Libraries\MySql.Data.dll</HintPath>
+      <HintPath>lib\MySql.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.API, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Unturned_Data\Managed\Rocket.API.dll</HintPath>
+    <Reference Include="Rocket.API">
+      <HintPath>lib\Rocket.API.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Core, Version=2.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Unturned_Data\Managed\Rocket.Core.dll</HintPath>
+    <Reference Include="Rocket.Core">
+      <HintPath>lib\Rocket.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Unturned, Version=4.6.2.1, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Unturned_Data\Managed\Rocket.Unturned.dll</HintPath>
+    <Reference Include="Rocket.Unturned">
+      <HintPath>lib\Rocket.Unturned.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -67,10 +63,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Uconomy">
-      <HintPath>..\..\..\..\..\Desktop\Uconomy.dll</HintPath>
+      <HintPath>lib\Uconomy.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\Desktop\Unturned\Unturned_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>lib\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
