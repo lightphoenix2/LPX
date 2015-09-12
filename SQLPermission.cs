@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace LIGHT
 {
-    class SQLPermission: IRocketPermissionsProvider
+    public class SQLPermission: IRocketPermissionsProvider
     {
         public List<RocketPermissionsGroup> GetGroups(IRocketPlayer player , bool IncludeParentGroup)
         {
@@ -17,7 +17,7 @@ namespace LIGHT
             group = LIGHT.Instance.Database.CheckUserGroup(player.Id);
             if (group == null || group == "")
                 group = "default";
-            RocketPermissionsGroup RPG = new RocketPermissionsGroup(group, group, null, LIGHT.Instance.Database.getMembers(group), LIGHT.Instance.Database.getGroupPermission(group).ToList());
+            RocketPermissionsGroup RPG = new RocketPermissionsGroup(group, group, LIGHT.Instance.Database.getParentGroup(group), LIGHT.Instance.Database.getMembers(group), LIGHT.Instance.Database.getGroupPermission(group).ToList());
             Group.Add(RPG);
             return Group;
         }
@@ -25,7 +25,7 @@ namespace LIGHT
         {
             bool hasPerm = false;
             hasPerm = LIGHT.Instance.checkPermission(Permission, player.Id);
-            if (hasPerm == false) UnturnedChat.Say(player, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+            //if (hasPerm == false) UnturnedChat.Say(player, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
             return defaultreturnvalue == false ? hasPerm : defaultreturnvalue;
         }
         public bool SetGroup(IRocketPlayer caller , string group)

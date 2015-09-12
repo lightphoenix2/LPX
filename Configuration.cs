@@ -13,6 +13,7 @@ namespace LIGHT
         public string DatabasePassword;
         public string DatabaseName;
         public string DatabaseTableName;
+        public string DatabaseTableGroup;
         public int DatabasePort;
         public bool LPXEnabled;
         public bool IncomeEnabled;
@@ -25,6 +26,7 @@ namespace LIGHT
             DatabasePassword = "password";
             DatabaseName = "unturned";
             DatabaseTableName = "LPX";
+            DatabaseTableGroup = "LPXGroups";
             DatabasePort = 3306;
             LPXEnabled = true;
             IncomeEnabled = true;

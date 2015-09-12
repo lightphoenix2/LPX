@@ -78,7 +78,11 @@ namespace LIGHT
                 {"lpx_listp_permission","Permission:{0}"},
                 {"lpx_help_setgroupincome","/lpx setgroupincome <group> <amount>"},
                 {"lpx_added_income","Group: {0}, income have been set to {1}"},
-                {"lpx_failed_setincome","Fail to set income to Group: {0}"}
+                {"lpx_failed_setincome","Fail to set income to Group: {0}"},
+                {"lpx_help_addparentgroup","/lpx addparentgroup <group> <parentgroup>"},
+                {"lpx_added_parentgroup", "Successfully added Parent Group:{1} to group {0}"},
+                {"lpx_failed_parentgroup", "Fail to added Parent Group:{1} to group {0}"},
+                {"lpx_add_sameparentgroup","Unable to add same group to be Parent Group of that group!"}
                 };
             }
         }
@@ -103,8 +107,7 @@ namespace LIGHT
             for (int i = permission.Length - 1; i >= 0; i--)
             {
                 if (permission[i].Contains("color."))
-                {
-                    
+                {                   
                     cmd = permission[i].Split('.');
                     Color? color = UnturnedChat.GetColorFromName(cmd[1], Color.white);
                     player.Color = color.Value;

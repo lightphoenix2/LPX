@@ -8,6 +8,7 @@ using System.Linq;
 using SDG.Unturned;
 using System.Data;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace LIGHT
 {
@@ -237,6 +238,20 @@ namespace LIGHT
                             }
                             else
                                 UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_listpermission"));
+                            break;
+                        case "addparentgroup":
+                            for (int i = permission.Length - 1; i >= 0; i--)
+                            {
+                                if (permission[i] == "lpx.addparentgroup")
+                                    hasPerm = true;
+                            }
+                            if (!hasPerm && !console)
+                            {
+                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                return;
+                            }
+                            else
+                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addparentgroup"));
                             break;
                         default:
                             break;
@@ -570,6 +585,30 @@ namespace LIGHT
                                     UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
                                     return;
                                 }
+                            }
+                            break;
+                        case "addparentgroup":
+                            for (int i = permission.Length - 1; i >= 0; i--)
+                            {
+                                if (permission[i] == "lpx.addparentgroup")
+                                    hasPerm = true;
+                            }
+                            if (!hasPerm && !console)
+                            {
+                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                return;
+                            }
+                            else
+                            {
+                                if (param[0] == param[1])
+                                {
+                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_add_sameparentgroup"));
+                                    return;
+                                }
+                                if(LIGHT.Instance.Database.AddParentGroup(param[0], param[1]))
+                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_parentgroup", param[0], param[1]));
+                                else
+                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_parentgroup", param[0], param[1]));
                             }
                             break;
                         default:

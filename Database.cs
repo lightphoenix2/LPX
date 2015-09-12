@@ -44,7 +44,7 @@ namespace LIGHT
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 adapter.Fill(dt);
                 connection.Close();
-                for (int i = 0; i < dt.Rows.Count; i--)
+                for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     members += dt.Rows[i].ItemArray[0].ToString() + " ";
                 }
@@ -56,6 +56,33 @@ namespace LIGHT
                 Logger.LogException(ex);
             }
             return Members;
+        }
+        public List<string> getParentGroup(string group)
+        {
+            string PGroup = "";
+            List<string> Pgroups = new List<string>();
+            DataTable dt = new DataTable();
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `parentgroup` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup+ "` where `name` = '" + group + "'";
+                connection.Open();
+                MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+                adapter.Fill(dt);
+                connection.Close();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    PGroup += dt.Rows[i].ItemArray[0].ToString() + " ";
+                }
+                PGroup.Trim();
+                Pgroups = PGroup.Split(' ').ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return Pgroups;
         }
         public string[] getPermission(string id)
         {
@@ -72,7 +99,7 @@ namespace LIGHT
                     name = group.ToString();
                 else
                     name = "default";
-                command.CommandText = "select `permission` from `lpxgroups` where `name` = '" + name + "';";
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + name + "';";
                 group = command.ExecuteScalar();
                 if (group != null)
                 {
@@ -93,12 +120,65 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `permission` from `lpxgroups` where `name` = '" + group + "'";
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
                 connection.Open();
                 object obj = command.ExecuteScalar();
                 if (obj != null)
                 {
                     permission = (obj.ToString()).Split(' ');
+                }
+                connection.Close();
+                string parentgroup = string.Join(" ", LIGHT.Instance.Database.getParentGroup(group).ToArray()).Trim();           
+                if(parentgroup != "")
+                {
+                    string[] pgroups = parentgroup.Split(' ');
+                    string parentgroup2 = "";
+                    for (int i = 0; i < pgroups.Length; i++)
+                    {
+                        if (string.Join(" ",LIGHT.Instance.Database.getParentGroup(pgroups[i]).ToArray()).Trim() != "")
+                            parentgroup2 += " " + string.Join(" ", LIGHT.Instance.Database.getParentGroup(pgroups[i]).ToArray());
+                    }
+                    if(parentgroup2!= "")
+                        parentgroup += parentgroup2;
+                    parentgroup = parentgroup.Trim();
+                    pgroups = parentgroup.Split(' ');
+                    string[] pgroupPerm = new string[pgroups.Length];
+                    string newPermission = "";
+                    for (int i = 0; i < pgroups.Length; i++)
+                    {
+                        pgroupPerm[i] = getGroupPermissionString(pgroups[i]);
+                        pgroupPerm[i].Trim();
+                    }
+                    for(int i = 0; i < pgroupPerm.Length; i ++)
+                    {
+                        newPermission += " "+ pgroupPerm[i];                
+                    }
+                    newPermission = newPermission.Trim();
+                    string oldpermission = obj.ToString();
+                    oldpermission = oldpermission.Trim();
+                    string combine = oldpermission + " " + newPermission;
+                    permission = (oldpermission +" " +newPermission).Split(' ');
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return permission;
+        }
+        public string getGroupPermissionString(string group)
+        {
+            string permission = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                {
+                    permission = obj.ToString();
                 }
                 connection.Close();
             }
@@ -147,7 +227,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "insert into `lpxgroups` (`name`,`income`) values('" + group + "', '" + income + "')";
+                command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`) values('" + group + "', '" + income + "')";
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -167,7 +247,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "Delete from `lpxgroups` (`name`) where `name` = '" + group + "'";
+                command.CommandText = "Delete from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`) where `name` = '" + group + "'";
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -210,7 +290,7 @@ namespace LIGHT
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
                 if (ItemID.Length < 1)
-                    command.CommandText = "insert into `lpxgroups` (`freeitem`) values('" + id + "')";
+                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`freeitem`) values('" + id + "')";
                 else
                 {
                     for (int i = 0; i < ItemID.Length; i++ )
@@ -218,7 +298,7 @@ namespace LIGHT
                         Items += (" " + ItemID[i]); 
                     }
                     Items.Trim();
-                    command.CommandText = "insert into `lpxgroups` (`freeitem`) values('" + Items + "')";
+                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`freeitem`) values('" + Items + "')";
                 }
                 connection.Open();
                 command.ExecuteNonQuery();
@@ -241,7 +321,7 @@ namespace LIGHT
                 string[] permission = { };
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `permission` from `lpxgroups` WHERE `name` = '" + group + "'";
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` WHERE `name` = '" + group + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 connection.Close();
@@ -274,7 +354,7 @@ namespace LIGHT
                         else if(!(permissions.Contains("color.")))
                             newpermissions += " " + permi;                        
                     }
-                    command.CommandText = "update `lpxgroups` set `permission` = '" + newpermissions + "' where `name` = '" + group + "'";
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` set `permission` = '" + newpermissions + "' where `name` = '" + group + "'";
                     connection.Open();
                     command.ExecuteNonQuery();
                     connection.Close();
@@ -283,7 +363,7 @@ namespace LIGHT
                 }
                 if (permissions.Length < 1)
                 {
-                    command.CommandText = "update `lpxgroups` set `permission` = '" + permi + "' where `name` = '" + group + "'";
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` set `permission` = '" + permi + "' where `name` = '" + group + "'";
                     connection.Open();
                     command.ExecuteNonQuery();
                     connection.Close();
@@ -291,7 +371,7 @@ namespace LIGHT
                 else
                 {
                     permissions += " " + permi;
-                    command.CommandText = "update `lpxgroups` set `permission` = '" + permissions + "' where `name` = '" + group + "'";
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` set `permission` = '" + permissions + "' where `name` = '" + group + "'";
                     connection.Open();
                     command.ExecuteNonQuery();
                     connection.Close();
@@ -323,7 +403,7 @@ namespace LIGHT
                 }
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "update `lpxgroups` set `permission` = '" + permissions + "' where `name` = '" + group + "'";
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` set `permission` = '" + permissions + "' where `name` = '" + group + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 connection.Close();
@@ -344,7 +424,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `name` from `lpxgroups` where `name` = '" + group + "'";
+                command.CommandText = "select `name` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 if (result != null) exist = result.ToString();
@@ -359,6 +439,43 @@ namespace LIGHT
                 Logger.LogException(ex);
             }
             return contain;
+        }
+        public bool AddParentGroup(string group, string parentgroup)
+        {
+            bool added = false;
+            string exist = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `parentgroup` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
+                connection.Open();
+                object result = command.ExecuteScalar();
+                connection.Close();
+                if (result == null)
+                {
+                    connection.Open();
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` set `parentgroup` = '" + parentgroup + "' where `name` = '" + group + "'";
+                    command.ExecuteScalar();
+                    connection.Close();                   
+                }
+                else
+                {
+                    exist = result.ToString().Trim();
+                    string combine = exist + " " + parentgroup.Trim();
+                    connection.Open();
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` set `parentgroup` = '" + combine + "' where `name` = '" + group + "'";
+                    command.ExecuteScalar();
+                    connection.Close();
+                }
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+                return added = false;
+            }
+            return added;
         }
         public string CheckUserGroup(string id)
         {
@@ -387,7 +504,7 @@ namespace LIGHT
             {               
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `name` from `lpxgroups`";
+                command.CommandText = "select `name` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "`";
                 connection.Open();
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);             
                 adapter.Fill(dt);
@@ -407,7 +524,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `income` from `lpxgroups`";
+                command.CommandText = "select `income` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "`";
                 connection.Open();
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 adapter.Fill(dt);
@@ -434,7 +551,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `freeitem` from `lpxgroups` where name = '" + group + "'";
+                command.CommandText = "select `freeitem` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where name = '" + group + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 if (result != null) exist = result.ToString();
@@ -455,7 +572,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `freeitem` from `lpxgroups` where name = '" + group + "'";
+                command.CommandText = "select `freeitem` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where name = '" + group + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 if (result != null) exist = result.ToString();
@@ -476,7 +593,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "update `lpxgroups` (`income`) values('" + income + "')";
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`income`) values('" + income + "')";
                 connection.Open();
                 command.ExecuteNonQuery();
                 connection.Close();
@@ -504,14 +621,14 @@ namespace LIGHT
                     command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId` varchar(32) NOT NULL,`group` varchar(32),PRIMARY KEY (`steamId`)) ";
                     command.ExecuteNonQuery();
                 }
-                command.CommandText = "show tables like 'lpxgroups'";
+                command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "'";
                 test = command.ExecuteScalar();
 
                 if (test == null)
                 {
-                    command.CommandText = "CREATE TABLE `lpxgroups` (`name` varchar(32) NOT NULL,`permission` varchar(244),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitem` int(8),PRIMARY KEY (`name`)) ";
+                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name` varchar(32) NOT NULL,`permission` varchar(568),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitem` int(8),`parentgroup` varchar(32),PRIMARY KEY (`name`)) ";
                     command.ExecuteNonQuery();
-                    command.CommandText = "insert into `lpxgroups` (`name`,`income`) values('default', 10)";
+                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`) values('default', 10)";
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

@@ -14,6 +14,10 @@ namespace LIGHT
         public delegate void PlayerPaidEvent(UnturnedPlayer player, decimal amount);
         public event PlayerPaidEvent OnPlayerPaid;
         public Dictionary<string, decimal> PayGroups = new Dictionary<string, decimal>();
+        protected void Start()
+        {
+            this.lastpaid = DateTime.Now;
+        }
         private void FixedUpdate()
         {
             if (LIGHT.Instance.Configuration.Instance.IncomeEnabled && (DateTime.Now - this.lastpaid).TotalSeconds >= LIGHT.Instance.Configuration.Instance.IncomeInterval)
@@ -35,9 +39,7 @@ namespace LIGHT
                 decimal pay2 = 0.0m;
                 foreach (string s in plgroups)
                 {
-                    Logger.Log(s);
                     PayGroups.TryGetValue(s, out pay2);
-                    Logger.Log(pay2.ToString());
                     if (LIGHT.Instance.Database.CheckUserGroup(this.Player.Id).ToLower() == s.ToLower())
                     {
                         pay = pay2;                      
