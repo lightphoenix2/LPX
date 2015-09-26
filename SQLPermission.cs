@@ -25,7 +25,8 @@ namespace LIGHT
         {
             bool hasPerm = false;
             hasPerm = LIGHT.Instance.checkPermission(Permission, player.Id);
-            //if (hasPerm == false) UnturnedChat.Say(player, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+            if (player.IsAdmin)
+                hasPerm = true;
             return defaultreturnvalue == false ? hasPerm : defaultreturnvalue;
         }
         public bool SetGroup(IRocketPlayer caller , string group)

@@ -22,12 +22,14 @@ namespace LIGHT
         public DatabaseManager Database;
         public static LIGHT Instance;
         static IRocketPermissionsProvider OriginalPermissions;
+        DateTime logouttime;
 
         protected override void Load()
         {
             Instance = this;
             Database = new DatabaseManager();
             U.Events.OnPlayerConnected += RocketServerEvents_OnPlayerConnected;
+            U.Events.OnPlayerDisconnected += RocketServerEvents_OnPlayerDisconnected;
             SQLPermission permission = new SQLPermission();
             OriginalPermissions = R.Permissions;
             R.Permissions = permission;
@@ -44,6 +46,7 @@ namespace LIGHT
                 {"lpx_no_perm","You have no permission to that command!"},
                 {"lpx_invaild","Invalid command!"},
                 {"lpx_invaild_para","Invalid Parameter!"},
+                {"lpx_group_notexist","Invalid Parameter!"},
                 {"lpx_help","/lpx adduser, /lpx removeuser, /lpx addpermission, /lpx removepermission, /lpx addgroup, /lpx removegroup, /lpx listgroup, /lpx setgroupincome}"},
                 {"lpx_help_adduser","/lpx adduser <playername> <group>"},
                 {"lpx_help_adduser2","Missing <group> parameter!"},
@@ -54,7 +57,7 @@ namespace LIGHT
                 {"lpx_help_addpermission2","Missing <permission> parameter!"},
                 {"lpx_added_permission","Successfully added {0} to Group: {1}!"},
                 {"lpx_failed_permission","Fail to add {0} to Group: {1}!"},
-                {"lpx_help_addgroup","/lpx addgroup <name> <income>"},
+                {"lpx_help_addgroup","/lpx addgroup <name> <income> <parentgroup> <updategroup> <updatetime> <update enable>"},
                 {"lpx_group_exist","Group: {0} already exist!"},
                 {"lpx_added_group","Group: {0} successfully added!"},
                 {"lpx_failed_group","Fail to add Group: {0}!"},
@@ -82,7 +85,17 @@ namespace LIGHT
                 {"lpx_help_addparentgroup","/lpx addparentgroup <group> <parentgroup>"},
                 {"lpx_added_parentgroup", "Successfully added Parent Group:{1} to group {0}"},
                 {"lpx_failed_parentgroup", "Fail to added Parent Group:{1} to group {0}"},
-                {"lpx_add_sameparentgroup","Unable to add same group to be Parent Group of that group!"}
+                {"lpx_add_sameparentgroup","Unable to add same group to be Parent Group of that group!"},
+                {"lpx_promotion","You have been added to Group: {0} for playing for more than {1} hours"},
+                {"lpx_help_setpromotegroup","/lpx setpromotegroup <group> <updategroup>"},
+                {"lpx_set_promotegroup", "Successfully set Promote Group:{1} to group {0}"},
+                {"lpx_failed_promotegroup", "Fail to set Promote Group:{1} to group {0}"},
+                {"lpx_help_setpromotetime","/lpx setpromotetime <group> <hour>"},
+                {"lpx_set_promotetime","Successfully set Promote Time to {1} for group {0}"},
+                {"lpx_failed_promotegroup", "Fail to set Promote Time to group {0}"},
+                {"lpx_help_enablepromote","/lpx enablepromote <group> <true or false>"},
+                {"lpx_set_enablepromote","Successfully set Enable Promote to {1} for group {0}"},
+                {"lpx_failed_enablepromote", "Fail to set Enable Promote to group {0}"}
                 };
             }
         }
@@ -90,7 +103,7 @@ namespace LIGHT
         {          
             string[] permission = { };
             bool hasPerm = false;
-            permission = LIGHT.Instance.Database.getPermission(ID);
+            permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(ID));
             for (int i = permission.Length - 1; i >= 0; i--)
             {
                 if (permission[i] == PermissionCmd)
@@ -106,13 +119,29 @@ namespace LIGHT
             permission = LIGHT.Instance.Database.getPermission(player.Id);
             for (int i = permission.Length - 1; i >= 0; i--)
             {
-                if (permission[i].Contains("color."))
+                if (permission[i].Contains("color.") && !(player.IsAdmin))
                 {                   
                     cmd = permission[i].Split('.');
                     Color? color = UnturnedChat.GetColorFromName(cmd[1], Color.white);
                     player.Color = color.Value;
                 }
             }
+            LIGHT.Instance.Database.LastLogin(player.Id);
+            if(LIGHT.Instance.Database.CheckEnablePromotion(player.Id) && !(player.IsAdmin))
+            {
+                decimal TotalHour = LIGHT.Instance.Database.GetTotalOnlineHours(player.Id);
+                string PromotedGroup = LIGHT.Instance.Database.GetUpdateGroup(player.Id);
+                if(TotalHour >= LIGHT.Instance.Database.GetUpdateTime(player.Id))
+                {
+                    LIGHT.Instance.Database.AddUserIntoGroup(player.Id, PromotedGroup);
+                    UnturnedChat.Say(player.CSteamID, LIGHT.Instance.DefaultTranslations.Translate("lpx_promotion", PromotedGroup, TotalHour));
+                }
+            }
+        }
+        public void RocketServerEvents_OnPlayerDisconnected(UnturnedPlayer player)
+        {
+            logouttime = DateTime.Now;
+            LIGHT.Instance.Database.HoursOnline(player.Id, logouttime);
         }
     }
 }
