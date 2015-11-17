@@ -2,7 +2,7 @@
 using Rocket.Unturned.Player;
 using Rocket.Unturned.Chat;
 using Rocket.Core.Logging;
-using unturned.ROCKS.Uconomy;
+using fr34kyn01535.Uconomy;
 using System.Data;
 using System.Collections.Generic;
 
