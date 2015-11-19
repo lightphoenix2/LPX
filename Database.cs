@@ -271,6 +271,30 @@ namespace LIGHT
             }
 
         }
+        public void AddNewUserIntoGroup(string id, string group)
+        {
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `steamId` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` WHERE `steamId` = '" + id + "'";
+                connection.Open();
+                object result = command.ExecuteScalar();
+                connection.Close();
+                if (result == null)
+                {
+                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`group`) values('" + id + "', '" + group + "')";
+                    connection.Open();
+                    command.ExecuteNonQuery();
+                    connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+
+        }
         public bool AddGroup(string group, string income,string parentgroup, string updategroup, int Updatetime, bool autoUpdate)
         {
             decimal pay = decimal.Parse(income);

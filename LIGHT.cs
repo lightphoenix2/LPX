@@ -114,6 +114,7 @@ namespace LIGHT
 
         public void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
+            LIGHT.Instance.Database.AddNewUserIntoGroup(player.Id, Configuration.Instance.defaultUserGroup);
             string[] permission = { };
             string[] cmd = {};
             permission = LIGHT.Instance.Database.getPermission(player.Id);
