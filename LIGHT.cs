@@ -9,7 +9,7 @@ using UnityEngine;
 using Rocket.Core;
 using Rocket.API;
 using SDG.Unturned;
-using unturned.ROCKS.Uconomy;   
+using fr34kyn01535.Uconomy; 
 using Steamworks;
 using System;
 using System.Collections.Generic;
@@ -114,6 +114,7 @@ namespace LIGHT
 
         public void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
+            LIGHT.Instance.Database.AddNewUserIntoGroup(player.Id, Configuration.Instance.defaultUserGroup);
             string[] permission = { };
             string[] cmd = {};
             permission = LIGHT.Instance.Database.getPermission(player.Id);
