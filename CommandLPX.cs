@@ -64,7 +64,7 @@ namespace LIGHT
                         hasPerm = true;
                     }
                 }
-                if (!hasPerm)
+                if (!hasPerm && !(caller.IsAdmin))
                 {
                     UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
                     return;
@@ -502,12 +502,21 @@ namespace LIGHT
                                 {
                                     if (LIGHT.Instance.Database.CheckGroup(param[0]))
                                     {
-                                        bool result;
-                                        result = LIGHT.Instance.Database.AddPermissionIntoGroup(param[1], param[0]);
-                                        if (result)
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_permission", param[1], param[0]));
+                                        if (!LIGHT.Instance.Database.checkPermissionCopy(param[0],param[1]))
+                                        {
+                                            bool result;
+                                            result = LIGHT.Instance.Database.AddPermissionIntoGroup(param[1], param[0]);
+                                            if (result)
+                                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_permission", param[1], param[0]));
+                                            else
+                                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_permission", param[1], param[0]));
+                                        }
                                         else
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_permission", param[1], param[0]));
+                                        {
+                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_copypermission",param[1],param[0]));
+                                            return;
+                                        }
+
                                     }
                                     else
                                     {
@@ -539,11 +548,11 @@ namespace LIGHT
                                     if (LIGHT.Instance.Database.CheckGroup(param[0]))
                                     {
                                         bool result;
-                                        result = LIGHT.Instance.Database.AddPermissionIntoGroup(param[1], param[0]);
+                                        result = LIGHT.Instance.Database.RemovePermissionFromGroup(param[0], param[1]);
                                         if (result)
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_permission", param[1], param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_remove_removepermission", param[1], param[0]));
                                         else
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_permission", param[1], param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_removepermission", param[0]));
                                     }
                                     else
                                     {

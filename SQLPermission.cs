@@ -15,8 +15,11 @@ namespace LIGHT
             List<RocketPermissionsGroup> Group = new List<RocketPermissionsGroup>();
             string group = "";
             group = LIGHT.Instance.Database.CheckUserGroup(player.Id);
-            if (group == null || group == "")
+            if (player.IsAdmin && player.Id != null)
+                group = "admin";
+            else if (group == null || group == "")
                 group = "default";
+            
             RocketPermissionsGroup RPG = new RocketPermissionsGroup(group, group, LIGHT.Instance.Database.getParentGroup(group), LIGHT.Instance.Database.getMembers(group), LIGHT.Instance.Database.getGroupPermission(group).ToList());
             Group.Add(RPG);
             return Group;

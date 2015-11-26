@@ -9,7 +9,7 @@ using UnityEngine;
 using Rocket.Core;
 using Rocket.API;
 using SDG.Unturned;
-using fr34kyn01535.Uconomy; 
+using fr34kyn01535.Uconomy;   
 using Steamworks;
 using System;
 using System.Collections.Generic;
@@ -57,6 +57,7 @@ namespace LIGHT
                 {"lpx_help_addpermission2","Missing <permission> parameter!"},
                 {"lpx_added_permission","Successfully added {0} to Group: {1}!"},
                 {"lpx_failed_permission","Fail to add {0} to Group: {1}!"},
+                {"lpx_failed_copypermission","Permission: {0} already exist in Group: {1}!"},
                 {"lpx_help_addgroup","/lpx addgroup <name> <income> <parentgroup> <updategroup> <updatetime> <update enable>"},
                 {"lpx_group_exist","Group: {0} already exist!"},
                 {"lpx_added_group","Group: {0} successfully added!"},
@@ -69,6 +70,8 @@ namespace LIGHT
                 {"lpx_removed_group","Group: {0} succesfully removed!"},
                 {"lpx_help_removepermission","/lpx removepermission <group> <permission>"},
                 {"lpx_help_removepermission2","Missing <permission> parameter!"},
+                {"lpx_remove_removepermission","Sucessfully removed {0} from group {1}!"},
+                {"lpx_failed_removepermission","Failed to remove permission from group {0}!"},
                 {"unable_to_pay_group_msg","Unable to pay {0} as no {1} group salary set."},
                 {"pay_time_msg", "You have received {0} {1} in salary for being a {2}."},
                 {"new_balance_msg", "Your new balance is {0} {1}."},
@@ -114,9 +117,12 @@ namespace LIGHT
 
         public void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
-            LIGHT.Instance.Database.AddNewUserIntoGroup(player.Id, Configuration.Instance.defaultUserGroup);
             string[] permission = { };
             string[] cmd = {};
+            if (player.IsAdmin && LIGHT.Instance.Database.CheckUserGroup(player.Id) != "admin")
+            {
+                LIGHT.Instance.Database.AddUserIntoGroup(player.Id, "admin");
+            }
             permission = LIGHT.Instance.Database.getPermission(player.Id);
             for (int i = permission.Length - 1; i >= 0; i--)
             {

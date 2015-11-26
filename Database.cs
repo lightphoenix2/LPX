@@ -140,6 +140,62 @@ namespace LIGHT
             }
             return permission;
         }
+        public string[] getPermission2(string group)
+        {
+            string[] permission = { };
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();               
+                if (group == null)
+                    group = "default";
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "';";
+                connection.Open();
+                object  obj = command.ExecuteScalar();
+                connection.Close();
+                if (group != null)
+                {
+                    permission = (obj.ToString()).Split(' ');
+                }              
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return permission;
+        }
+        public bool checkPermissionCopy(string group, string permission)
+        {
+            string[] permissions = { };
+            bool CopyDetected = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "';";
+                connection.Open();
+                object perm = command.ExecuteScalar();
+                if (perm != null)
+                {
+                    permissions = (perm.ToString()).Split(' ');
+                }
+                connection.Close();
+                for(int x = 0; x < permissions.Length; x ++)
+                {
+                    if (permissions[x] == permission)
+                    {
+                        CopyDetected = true;
+                    }
+                    else
+                        CopyDetected = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return CopyDetected;
+        }
         public string[] getGroupPermission(string group)
         {
             string[] permission = { };
@@ -260,30 +316,6 @@ namespace LIGHT
                 else
                 {
                     command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` set `group` = '" + group + "' where `steamId` = '" + id + "'";
-                    connection.Open();
-                    command.ExecuteNonQuery();
-                    connection.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogException(ex);
-            }
-
-        }
-        public void AddNewUserIntoGroup(string id, string group)
-        {
-            try
-            {
-                MySqlConnection connection = createConnection();
-                MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `steamId` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` WHERE `steamId` = '" + id + "'";
-                connection.Open();
-                object result = command.ExecuteScalar();
-                connection.Close();
-                if (result == null)
-                {
-                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId`,`group`) values('" + id + "', '" + group + "')";
                     connection.Open();
                     command.ExecuteNonQuery();
                     connection.Close();
@@ -464,22 +496,19 @@ namespace LIGHT
             }
             return results;
         }
-        public bool RemovePermissionFromGroup(string group, string permi, string id)
+        public bool RemovePermissionFromGroup(string group, string permi)
         {
             bool results = false;
             try
             {
                 string permissions = "";
-                string[] permission = getPermission(id);
+                string[] permission = getPermission2(group);
                 for (int i = 0; i < permission.Length; i++)
                 {
-                    if(permission[i].Contains(permi))
-                        permission[i].Remove(i);
-                    if (i != (permission.Length - 1))
+                    if (permission[i] != permi)
                         permissions += permission[i] + " ";
-                    else
-                        permissions += permission[i];
                 }
+                permissions = permissions.Trim();
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` set `permission` = '" + permissions + "' where `name` = '" + group + "'";
@@ -894,6 +923,8 @@ namespace LIGHT
                     command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name` varchar(32) NOT NULL,`permission` varchar(668),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitem` int(8),`parentgroup` varchar(32),`updategroup` varchar(32),`updatetime` decimal(10) NOT NULL DEFAULT 15.00,`updateenable` bool,PRIMARY KEY (`name`)) ";
                     command.ExecuteNonQuery();
                     command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('default', 10,7,0)";
+                    command.ExecuteNonQuery();
+                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('admin', 60,7,0)";
                     command.ExecuteNonQuery();
                 }
                 connection.Close();

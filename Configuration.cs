@@ -18,7 +18,6 @@ namespace LIGHT
         public bool LPXEnabled;
         public bool IncomeEnabled;
         public ushort IncomeInterval;
-        public string defaultUserGroup;
 
         public void LoadDefaults()
         {
@@ -28,7 +27,6 @@ namespace LIGHT
             DatabaseName = "unturned";
             DatabaseTableName = "LPX";
             DatabaseTableGroup = "LPXGroups";
-            defaultUserGroup = "default";
             DatabasePort = 3306;
             LPXEnabled = true;
             IncomeEnabled = true;
