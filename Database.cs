@@ -801,7 +801,7 @@ namespace LIGHT
                 connection.Open();
                 object result = command.ExecuteScalar();
                 connection.Close();
-                if (result != null) enable = bool.Parse(result.ToString());
+                if (result != null) bool.TryParse(result.ToString(), out enable);
             }
             catch (Exception ex)
             {
@@ -991,7 +991,6 @@ namespace LIGHT
             {
                 Logger.LogException(ex);
             }
-            Logger.Log(Color);
             return Color;
         }
         public uint? Cooldown(string group)
@@ -1004,9 +1003,7 @@ namespace LIGHT
                 command.CommandText = "select `cooldown` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
                 connection.Open();
                 object obj = command.ExecuteScalar();
-                if (obj != null)
-                    cooldown = uint.Parse(obj.ToString());
-                else
+                if (uint.TryParse(obj.ToString(), out cooldown) == false)
                     cooldown = 0;
                 connection.Close();
             }

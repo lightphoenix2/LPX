@@ -137,7 +137,6 @@ namespace LIGHT
                 {                   
                     cmd = permission[i].Split('.');
                     Color? color = UnturnedChat.GetColorFromName(cmd[1].Trim(),  Color.white);
-                    UnturnedChat.GetColorFromHex(cmd[1]);
                     player.Color = color.Value;
                 }
             }
