@@ -24,9 +24,12 @@ namespace LIGHT
             get { return "lpx"; }
         }
 
-        public bool AllowFromConsole
+        public AllowedCaller AllowedCaller
         {
-            get { return true; }
+            get
+            {
+                return AllowedCaller.Both;
+            }
         }
 
         public string Syntax

@@ -4,6 +4,7 @@ using System;
 using System.Data;
 using System.Collections.Generic;
 using System.Linq;
+using Rocket.API.Serialisation;
 
 namespace LIGHT
 {
@@ -22,7 +23,7 @@ namespace LIGHT
             try
             {
                 if (LIGHT.Instance.Configuration.Instance.DatabasePort == 0) LIGHT.Instance.Configuration.Instance.DatabasePort = 3306;
-                connection = new MySqlConnection(String.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};PORT={4};", LIGHT.Instance.Configuration.Instance.DatabaseAddress, LIGHT.Instance.Configuration.Instance.DatabaseName, LIGHT.Instance.Configuration.Instance.DatabaseUsername, LIGHT.Instance.Configuration.Instance.DatabasePassword, LIGHT.Instance.Configuration.Instance.DatabasePort));
+                connection = new MySqlConnection(String.Format("SERVER={0};DATABASE={1};UID={2};PASSWORD={3};PORT={4}; Convert Zero Datetime=True;", LIGHT.Instance.Configuration.Instance.DatabaseAddress, LIGHT.Instance.Configuration.Instance.DatabaseName, LIGHT.Instance.Configuration.Instance.DatabaseUsername, LIGHT.Instance.Configuration.Instance.DatabasePassword, LIGHT.Instance.Configuration.Instance.DatabasePort));
             }
             catch (Exception ex)
             {
@@ -57,7 +58,7 @@ namespace LIGHT
             }
             return Members;
         }
-        public List<string> getParentGroup(string group)
+        public string getParentGroup(string group)
         {
             string PGroup = "";
             List<string> Pgroups = new List<string>();
@@ -76,13 +77,12 @@ namespace LIGHT
                     PGroup += dt.Rows[i].ItemArray[0].ToString() + " ";
                 }
                 PGroup.Trim();
-                Pgroups = PGroup.Split(' ').ToList();
             }
             catch (Exception ex)
             {
                 Logger.LogException(ex);
             }
-            return Pgroups;
+            return PGroup;
         }
         public string[] getParentGroupString(string group)
         {
@@ -753,6 +753,43 @@ namespace LIGHT
             command.ExecuteNonQuery();
             connection.Close();
         }
+        public void AutoRemove()
+        {
+            DataTable dt = new DataTable();
+            string Date = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `lastlogin`,`steamId` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "`";
+                connection.Open();
+                MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+                adapter.Fill(dt);
+                connection.Close();
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Date = dt.Rows[i].ItemArray[0].ToString();
+                    Date.Trim();
+                    Date.Replace("-", "/");
+                    if ((DateTime.Now - (Convert.ToDateTime(Date))).Days > LIGHT.Instance.Configuration.Instance.AutoRemoveDays)
+                    {     
+                        string[] Permission = getPermission(dt.Rows[i].ItemArray[1].ToString());
+                        bool immunity = false;
+                        for (int x = 0; x < Permission.Length; x ++ )
+                        {
+                            if (Permission[x].ToLower() == "lpx.autoremoveimmunity")
+                                immunity = true;
+                        }
+                        if(!immunity)
+                            RemoveUser(dt.Rows[i].ItemArray[1].ToString());
+                    }              
+                }            
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+        }
         public bool CheckEnablePromotion(string id)
         {
             bool enable = false;
@@ -900,6 +937,101 @@ namespace LIGHT
             }
             return added;
         }
+        public bool CheckIfUserInAnyGroup(string id)
+        {
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `steamId` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` WHERE `steamId` = '" + id + "'";
+                connection.Open();
+                object result = command.ExecuteScalar();
+                connection.Close();
+                if (result == null) return false;
+                else return true;
+            }
+            catch (Exception ex)
+            {              
+                Logger.LogException(ex);
+                return false;
+            }
+
+        }
+        public string GetColor(string group)
+        {
+            string[] permission = { };
+            string Color = "white";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                {
+                    permission = (obj.ToString()).Split(' ');
+                }
+                connection.Close();
+                for(int x = 0; x < permission.Length; x++)
+                {
+                    if (permission[x].StartsWith("color."))
+                    {
+                        Color = "";
+                        char[] buff = permission[x].ToCharArray();
+                        for(int y = permission[x].IndexOf(".") + 1; y < permission[x].Length; y ++)
+                        {
+                            Color += buff[y];
+                        }
+                        Color.Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            Logger.Log(Color);
+            return Color;
+        }
+        public uint? Cooldown(string group)
+        {
+            uint cooldown = 0;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `cooldown` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    cooldown = uint.Parse(obj.ToString());
+                else
+                    cooldown = 0;
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return cooldown;
+        }
+        public void SetSteamName(string id, string steamName)
+        {
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` set `SteamName` = '" + steamName + "' where `steamId` = '" + id + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+        }
         internal void CheckSchema()
         {
             try
@@ -909,23 +1041,42 @@ namespace LIGHT
                 command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "'";
                 connection.Open();
                 object test = command.ExecuteScalar();
-
                 if (test == null)
                 {
-                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId` varchar(32) NOT NULL,`group` varchar(32),`lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,`hours` decimal(10) NOT NULL DEFAULT 0, PRIMARY KEY (`steamId`)) ";
+                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId` varchar(32) NOT NULL,`SteamName` varchar(46),`group` varchar(32),`lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,`hours` decimal(10) NOT NULL DEFAULT 0, PRIMARY KEY (`steamId`)) ";
                     command.ExecuteNonQuery();
+                }
+                else
+                {                    
+                    command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` LIKE 'SteamName'";
+                    test = command.ExecuteScalar();
+                    if (test == null)
+                    {
+                        command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` ADD `SteamName` VARCHAR(46) AFTER `steamId`";
+                        command.ExecuteNonQuery();
+                    }
                 }
                 command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "'";
                 test = command.ExecuteScalar();
 
                 if (test == null)
                 {
-                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name` varchar(32) NOT NULL,`permission` varchar(668),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitem` int(8),`parentgroup` varchar(32),`updategroup` varchar(32),`updatetime` decimal(10) NOT NULL DEFAULT 15.00,`updateenable` bool,PRIMARY KEY (`name`)) ";
+                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name` varchar(32) NOT NULL,`permission` varchar(668),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitem` int(8),`parentgroup` varchar(32),`updategroup` varchar(32),`updatetime` decimal(10) NOT NULL DEFAULT 15.00,`updateenable` bool,`cooldown` varchar(255),PRIMARY KEY (`name`)) ";
                     command.ExecuteNonQuery();
                     command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('default', 10,7,0)";
                     command.ExecuteNonQuery();
                     command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('admin', 60,7,0)";
                     command.ExecuteNonQuery();
+                }
+                else
+                {
+                    command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` LIKE 'cooldown'";
+                    test = command.ExecuteScalar();
+                    if (test == null)
+                    {
+                        command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` ADD `cooldown` VARCHAR(255) AFTER `permission`";
+                        command.ExecuteNonQuery();
+                    }
                 }
                 connection.Close();
             }

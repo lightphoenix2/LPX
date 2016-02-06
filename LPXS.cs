@@ -79,6 +79,10 @@ namespace LIGHT
                         this.Player.Color = color.Value;
                     }
                 }
+                if(LIGHT.Instance.Configuration.Instance.AutoRemoveEnabled)
+                {
+                    LIGHT.Instance.Database.AutoRemove();
+                }
             }
 
         }

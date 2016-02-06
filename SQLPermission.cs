@@ -20,9 +20,22 @@ namespace LIGHT
             else if (group == null || group == "")
                 group = "default";
             
-            RocketPermissionsGroup RPG = new RocketPermissionsGroup(group, group, LIGHT.Instance.Database.getParentGroup(group), LIGHT.Instance.Database.getMembers(group), LIGHT.Instance.Database.getGroupPermission(group).ToList());
+            RocketPermissionsGroup RPG = new RocketPermissionsGroup(group, group, LIGHT.Instance.Database.getParentGroup(group), LIGHT.Instance.Database.getMembers(group), GetGroupPermission(player), LIGHT.Instance.Database.GetColor(group));
             Group.Add(RPG);
             return Group;
+        }
+        private List<Permission> GetGroupPermission(IRocketPlayer player)
+        {
+            string group = "";
+            group = LIGHT.Instance.Database.CheckUserGroup(player.Id);
+            if (player.IsAdmin && player.Id != null)
+                group = "admin";
+            else if (group == null || group == "")
+                group = "default";
+            List<Permission> GroupPermission = new List<Permission>();
+            Permission GpPer = new Permission(string.Join(" ", LIGHT.Instance.Database.getGroupPermission(group)), LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id)));
+            GroupPermission.Add(GpPer);
+            return GroupPermission;
         }
         public bool HasPermission(IRocketPlayer player, string Permission, bool defaultreturnvalue)
         {
@@ -31,6 +44,17 @@ namespace LIGHT
             if (player.IsAdmin)
                 hasPerm = true;
             return defaultreturnvalue == false ? hasPerm : defaultreturnvalue;
+        }
+        public bool HasPermission(IRocketPlayer player, string Permission,out uint? cooldown, bool defaultreturnvalue)
+        {
+            bool hasPerm = false;
+            hasPerm = LIGHT.Instance.checkPermission(Permission, player.Id);
+            if (player.IsAdmin)
+                hasPerm = true;
+            cooldown = null; 
+            if (LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id)) != 0 && hasPerm)
+                cooldown = LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id));                                     
+            return defaultreturnvalue == false ? hasPerm : defaultreturnvalue;            
         }
         public bool SetGroup(IRocketPlayer caller , string group)
         {
@@ -57,9 +81,12 @@ namespace LIGHT
             } 
             return Result;                                          
         }
-        public List<string> GetPermissions(IRocketPlayer player)
+        public List<Permission> GetPermissions(IRocketPlayer player)
         {
-            return LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(player.Id)).ToList();
+            List<Permission> UserGroup = new List<Permission>();
+            Permission Usergroup = new Permission(string.Join(" ", LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(player.Id))), LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id)));
+            UserGroup.Add(Usergroup);
+            return UserGroup;
         }
         public void Reload()
         {

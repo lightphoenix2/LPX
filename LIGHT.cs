@@ -14,6 +14,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using Rocket.Unturned.Plugins;
+using Rocket.Core.Logging;
 
 namespace LIGHT
 {
@@ -33,6 +34,8 @@ namespace LIGHT
             SQLPermission permission = new SQLPermission();
             OriginalPermissions = R.Permissions;
             R.Permissions = permission;
+            if(LIGHT.Instance.Configuration.Instance.AutoRemoveEnabled)
+                LIGHT.Instance.Database.AutoRemove();
         }
         protected override void Unload()
         {
@@ -123,17 +126,23 @@ namespace LIGHT
             {
                 LIGHT.Instance.Database.AddUserIntoGroup(player.Id, "admin");
             }
+            if (LIGHT.Instance.Database.CheckIfUserInAnyGroup(player.Id) == false && LIGHT.Instance.Configuration.Instance.AutoAddDefault)
+            {
+                LIGHT.Instance.Database.AddUserIntoGroup(player.Id, "default");
+            }
             permission = LIGHT.Instance.Database.getPermission(player.Id);
             for (int i = permission.Length - 1; i >= 0; i--)
             {
                 if (permission[i].Contains("color.") && !(player.IsAdmin))
                 {                   
                     cmd = permission[i].Split('.');
-                    Color? color = UnturnedChat.GetColorFromName(cmd[1], Color.white);
+                    Color? color = UnturnedChat.GetColorFromName(cmd[1].Trim(),  Color.white);
+                    UnturnedChat.GetColorFromHex(cmd[1]);
                     player.Color = color.Value;
                 }
             }
             LIGHT.Instance.Database.LastLogin(player.Id);
+            LIGHT.Instance.Database.SetSteamName(player.Id, player.SteamName);
             if(LIGHT.Instance.Database.CheckEnablePromotion(player.Id) && !(player.IsAdmin))
             {
                 decimal TotalHour = LIGHT.Instance.Database.GetTotalOnlineHours(player.Id);
@@ -143,7 +152,7 @@ namespace LIGHT
                     LIGHT.Instance.Database.AddUserIntoGroup(player.Id, PromotedGroup);
                     UnturnedChat.Say(player.CSteamID, LIGHT.Instance.DefaultTranslations.Translate("lpx_promotion", PromotedGroup, TotalHour));
                 }
-            }
+            }         
         }
         public void RocketServerEvents_OnPlayerDisconnected(UnturnedPlayer player)
         {

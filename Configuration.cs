@@ -17,7 +17,10 @@ namespace LIGHT
         public int DatabasePort;
         public bool LPXEnabled;
         public bool IncomeEnabled;
-        public ushort IncomeInterval;
+        public ushort IncomeInterval;        
+        public bool AutoRemoveEnabled;        
+        public int AutoRemoveDays;
+        public bool AutoAddDefault;
 
         public void LoadDefaults()
         {
@@ -31,6 +34,9 @@ namespace LIGHT
             LPXEnabled = true;
             IncomeEnabled = true;
             IncomeInterval = 900;
+            AutoRemoveEnabled = false;
+            AutoRemoveDays = 30;
+            AutoAddDefault = false;
         }
     }
 }
