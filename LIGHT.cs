@@ -24,6 +24,7 @@ namespace LIGHT
         public static LIGHT Instance;
         static IRocketPermissionsProvider OriginalPermissions;
         DateTime logouttime;
+        public static Dictionary<string, DateTime> PlayerCooldown = new Dictionary<string, DateTime>();
 
         protected override void Load()
         {
@@ -101,7 +102,17 @@ namespace LIGHT
                 {"lpx_failed_promotegroup", "Fail to set Promote Time to group {0}"},
                 {"lpx_help_enablepromote","/lpx enablepromote <group> <true or false>"},
                 {"lpx_set_enablepromote","Successfully set Enable Promote to {1} for group {0}"},
-                {"lpx_failed_enablepromote", "Fail to set Enable Promote to group {0}"}
+                {"lpx_failed_enablepromote", "Fail to set Enable Promote to group {0}"},
+                {"kit_help", "/Kit <kit Name>"},
+                {"kit_given", "You have received the kit {0}!"},
+                {"kit_notexist", "Kit {0} does not exist"},
+                {"kit_cooldown", "Please wait {0} seconds before using kit again"},
+                {"kit_list", "Kit that are available to you are : {0}"},
+                {"kit_list_all","{0}"},
+                {"kits_chngcd_help","/kits cooldown <Kit Name> <New Cooldown>"},
+                {"kits_chngcd_help2","Missing <New Cooldown> Parameter"},
+                {"kits_failed_chngcd","Fail to change cooldown of {0}!"},
+                {"kits_success_chngcd","Successful change {0}'s cooldown to {1}"}
                 };
             }
         }
@@ -139,7 +150,7 @@ namespace LIGHT
                     Color? color = UnturnedChat.GetColorFromName(cmd[1].Trim(),  Color.white);
                     player.Color = color.Value;
                 }
-            }
+            }       
             LIGHT.Instance.Database.LastLogin(player.Id);
             LIGHT.Instance.Database.SetSteamName(player.Id, player.SteamName);
             if(LIGHT.Instance.Database.CheckEnablePromotion(player.Id) && !(player.IsAdmin))

@@ -14,9 +14,11 @@ namespace LIGHT
         public string DatabaseName;
         public string DatabaseTableName;
         public string DatabaseTableGroup;
+        public string DatabaseKit;
         public int DatabasePort;
         public bool LPXEnabled;
         public bool IncomeEnabled;
+        public bool KitsEnabled;
         public ushort IncomeInterval;        
         public bool AutoRemoveEnabled;        
         public int AutoRemoveDays;
@@ -30,9 +32,11 @@ namespace LIGHT
             DatabaseName = "unturned";
             DatabaseTableName = "LPX";
             DatabaseTableGroup = "LPXGroups";
+            DatabaseKit = "Kits";
             DatabasePort = 3306;
             LPXEnabled = true;
             IncomeEnabled = true;
+            KitsEnabled = false;
             IncomeInterval = 900;
             AutoRemoveEnabled = false;
             AutoRemoveDays = 30;

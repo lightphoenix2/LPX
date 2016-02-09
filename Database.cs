@@ -1015,8 +1015,29 @@ namespace LIGHT
         }
         public void SetSteamName(string id, string steamName)
         {
+            char[] buffer;
             try
             {
+                while (steamName.IndexOf("'") >= 0)
+                {
+                    buffer = steamName.ToCharArray();
+                    buffer[steamName.IndexOf("'")] = ' ';
+                    steamName = "";
+                    for(int j = 0; j < buffer.Length; j++)
+                    {
+                        steamName += buffer[j];
+                    }
+                }
+                while(steamName.IndexOf("`") >= 0)
+                {
+                    buffer = steamName.ToCharArray();
+                    buffer[steamName.IndexOf("`")] = ' ';
+                    steamName = "";
+                    for (int j = 0; j < buffer.Length; j++)
+                    {
+                        steamName += buffer[j];
+                    }
+                }
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` set `SteamName` = '" + steamName + "' where `steamId` = '" + id + "'";
@@ -1028,6 +1049,144 @@ namespace LIGHT
             {
                 Logger.LogException(ex);
             }
+        }
+        public bool CheckKit(string name)
+        {
+            bool exist = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `name` from `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` where `name` = '" + name + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj == null)
+                    exist = false;
+                else
+                    exist = true;
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex);
+            }
+            return exist;
+        }
+        public double GetKitCooldown(string name)
+        {
+            double cooldown = 1.00;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `cooldown` from `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` where `name` = '" + name + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    double.TryParse(obj.ToString(),out cooldown);
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex);
+            }
+            return cooldown;
+        }
+        public string[] GetKitItems(string name)
+        {
+            string[] ItemIDNAmt = {};
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `itemId/Amt` from `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` where `name` = '" + name + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    ItemIDNAmt = obj.ToString().Split(' ');
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex);
+            }
+            return ItemIDNAmt;
+        }
+        public string[] GetAllKitName()
+        {
+            DataTable dt = new DataTable();
+            string[] AllKitName = {};
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `name` from `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "`";
+                connection.Open();
+                MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+                adapter.Fill(dt);
+                connection.Close();
+                AllKitName = new string[dt.Rows.Count];
+                for (int i = 0; i < (dt.Rows.Count); i++)
+                {
+                    AllKitName[i] = dt.Rows[i].ItemArray[0].ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex);
+            }
+            
+            return AllKitName;
+        }
+        public string[] GetPlayerKitName(string group)
+        {
+            string[] PlayerKitName = {};
+            string[] Permission;
+            int Count = 0;
+            Permission = getGroupPermission(group);
+            try
+            {
+                for (int i = 0; i < Permission.Length; i++)
+                {
+                    if (Permission[i].Contains("kit."))
+                        Count++;
+                }
+                PlayerKitName = new string[Count];
+                Count = 0;
+                for (int i = 0; i < Permission.Length; i++)
+                {
+                    if (Permission[i].Contains("kit."))
+                    {
+                        PlayerKitName[Count] = Permission[i].Split('.')[1];
+                        Count++;                       
+                    }
+                }
+               
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex);
+            }
+            return PlayerKitName;
+        }
+        public bool SetKitsCooldown(string name, double cooldown)
+        {
+            bool added = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` set `cooldown` = " + cooldown + " where `name` = '" + name + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
         }
         internal void CheckSchema()
         {
@@ -1072,6 +1231,22 @@ namespace LIGHT
                     if (test == null)
                     {
                         command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` ADD `cooldown` VARCHAR(255) AFTER `permission`";
+                        command.ExecuteNonQuery();
+                    }
+                }
+                if (LIGHT.Instance.Configuration.Instance.KitsEnabled)
+                {
+                    command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "'";
+                    test = command.ExecuteScalar();
+                    if (test == null)
+                    {
+                        command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` (`name` varchar(32) NOT NULL,`itemID/Amt` varchar(255),`cooldown` decimal(10) NOT NULL DEFAULT 10.00, PRIMARY KEY (`name`)) ";
+                        command.ExecuteNonQuery();
+                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` (`name`,`itemID/Amt`,`cooldown`) values('survival', '245/1 81/2 16/1', 60.00)";
+                        command.ExecuteNonQuery();
+                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` (`name`,`itemID/Amt`,`cooldown`) values('watcher', '109/1 111/3 236/1',60.00)";
+                        command.ExecuteNonQuery();
+                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` (`name`,`itemID/Amt`,`cooldown`) values('brute force', '112/1 113/3 254/1',60.00)";
                         command.ExecuteNonQuery();
                     }
                 }
