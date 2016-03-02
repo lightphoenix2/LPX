@@ -54,35 +54,39 @@ namespace LIGHT
 
         public void Execute(IRocketPlayer caller,params string[] command)
         {
+            if (!LIGHT.Instance.Configuration.Instance.KitsEnabled) return;
             string[] permission = {};
             string[] Kits;
             Kits = LIGHT.Instance.Database.GetPlayerKitName(LIGHT.Instance.Database.CheckUserGroup(caller.Id));
             bool hasPerm = false;
-            UnturnedPlayer player;
             bool console = (caller is ConsolePlayer);
             if (!console)
             {
-                permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(caller.Id));
-                player = (UnturnedPlayer)caller;
-                for (int i = permission.Length - 1; i >= 0; i--)
+                if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
                 {
-                    if (permission[i] == "kits" || permission[i] == "kits.*")
+                    permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(caller.Id));
+                    
+                    for (int i = permission.Length - 1; i >= 0; i--)
+                    {
+                        if (permission[i] == "kits" || permission[i] == "kits.*")
+                            hasPerm = true;
+                        if (permission[i] == "kit.*")
+                            Kits = LIGHT.Instance.Database.GetAllKitName();
+                    }
+                }
+                else
+                {
+                    if(caller.HasPermission("kits") || caller.HasPermission("kits.*"))
                     {
                         hasPerm = true;
                     }
-                    if (permission[i] == "kit.*")
-                    {
-                        Kits = LIGHT.Instance.Database.GetAllKitName();
-                    }
-
                 }
                 if (!hasPerm && !(caller.IsAdmin))
                 {
-                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                     return;
                 }
-            }
-            if (!LIGHT.Instance.Configuration.Instance.KitsEnabled) return;
+            }          
             if (command.Length == 0)
             {
                 string ListKit = "";
@@ -93,23 +97,33 @@ namespace LIGHT
                     else
                         ListKit += Kits[x] + ".";
                 }
-                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("kit_list", ListKit));
+                UnturnedChat.Say(caller, LIGHT.Instance.Translate("kit_list", ListKit));
                 return;
             }
             if (command.Length >= 1)
             {
                 hasPerm = false;
-                switch (command[0])
+                switch (command[0].ToLower())
                 {
                     case "all":
-                        for (int i = permission.Length - 1; i >= 0; i--)
+                        if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
                         {
-                            if (permission[i] == "kits.all" || permission[i] == "kits.*")
+                            for (int i = permission.Length - 1; i >= 0; i--)
+                            {
+                                if (permission[i] == "kits.all" || permission[i] == "kits.*")
+                                    hasPerm = true;
+                            }
+                        }
+                        else
+                        {
+                            if (caller.HasPermission("kits.all") || caller.HasPermission("kits.*"))
+                            {
                                 hasPerm = true;
+                            }
                         }
                         if (!hasPerm && !console && !(caller.IsAdmin))
                         {
-                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                             return;
                         }
                         else
@@ -125,53 +139,126 @@ namespace LIGHT
                                 else
                                     ALL += Kits[x] + " Cooldown: " + cooldown[x];
                             }         
-                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("kit_list_all",ALL));
+                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("kit_list_all",ALL));
                         }
                         break;
                     case "cooldown":
-                        for (int i = permission.Length - 1; i >= 0; i--)
+                        if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
                         {
-                            if (permission[i] == "kits.cd" || permission[i] == "kits.*")
+                            for (int i = permission.Length - 1; i >= 0; i--)
+                            {
+                                if (permission[i] == "kits.cd" || permission[i] == "kits.*")
+                                    hasPerm = true;
+                            }
+                        }
+                        else
+                        {
+                            if (caller.HasPermission("kits.cd") || caller.HasPermission("kits.*"))
+                            {
                                 hasPerm = true;
+                            }
                         }
                         if (!hasPerm && !console && !(caller.IsAdmin))
                         {
-                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                             return;
                         }
                         else
                         {
                             if(command.Length == 1)
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("kits_chngcd_help"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_chngcd_help"));
                                 return;
                             }
                             if(command.Length == 2)
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("kits_chngcd_help2"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_chngcd_help2"));
                                 return;
                             }
                             if(command.Length > 2)
                             {
                                 string KitName = "";
-                                double NewCD = 10.00;
+                                double NewCD = 60.00;
                                 for(int x = 1; x < command.Length-1; x++)
                                 {
                                     KitName += command[x] + " ";
                                 }
-                                KitName.Trim();
-                                if(double.TryParse(command[command.Length-1], out NewCD))
-                                if(LIGHT.Instance.Database.SetKitsCooldown(KitName, NewCD))
+                                KitName = KitName.Trim();
+                                if (double.TryParse(command[command.Length - 1], out NewCD))
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("kits_success_chngcd",KitName,NewCD));
+                                    if (LIGHT.Instance.Database.SetKitsCooldown(KitName, NewCD))
+                                    {
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_success_chngcd", KitName, NewCD));
+                                    }
+                                    else
+                                    {
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_failed_chngcd", KitName));
+                                        return;
+                                    }
                                 }
                                 else
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("kits_failed_chngcd",KitName));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_error_cooldown", KitName));
                                     return;
                                 }
                             }                                
                         }
+                        break;
+                    case "add":
+                        if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
+                        {
+                            for (int i = permission.Length - 1; i >= 0; i--)
+                            {
+                                if (permission[i] == "kits.add" || permission[i] == "kits.*")
+                                    hasPerm = true;
+                            }
+                        }
+                        else
+                        {
+                            if (caller.HasPermission("kits.add") || caller.HasPermission("kits.*"))
+                            {
+                                hasPerm = true;
+                            }
+                        }
+                        if (!hasPerm && !console && !(caller.IsAdmin))
+                        {
+                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
+                            return;
+                        }
+                        else
+                        {
+                            if (command.Length == 1)
+                            {
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_add_help"));
+                                return;
+                            }
+                            if (command.Length >= 2)
+                            {
+                                string KitName = "";
+                                string itemID = "";
+                                double NewCD = 60.00;                              
+                                for (int x = 1; x < command.Length; x++)
+                                {
+                                    if(!command[x].Contains("/"))
+                                        KitName += command[x] + " ";
+                                    else
+                                        itemID += command[x] + " ";
+                                } 
+                                KitName = KitName.Trim();
+                                itemID = itemID.Trim();
+                                if(LIGHT.Instance.Database.AddKit(KitName,itemID,NewCD))
+                                {
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_add_success",KitName));
+                                }
+                                else
+                                {
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_add_failed",KitName));
+                                    return;
+                                }
+                            }
+                        }
+                        break;
+                    default:
                         break;
                 }
             }

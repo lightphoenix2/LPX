@@ -80,10 +80,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandBuy.cs" />
+    <Compile Include="CommandCost.cs" />
+    <Compile Include="CommandSale.cs" />
+    <Compile Include="CommandAuction.cs" />
+    <Compile Include="CommandSell.cs" />
+    <Compile Include="CommandShop.cs" />
+    <Compile Include="DatabaseAuction.cs" />
+    <Compile Include="Sales.cs" />
+    <Compile Include="CommandCar.cs" />
+    <Compile Include="CommandBuyV.cs" />
     <Compile Include="CommandKits.cs" />
     <Compile Include="CommandKit.cs" />
     <Compile Include="CommandLPX.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="DatabaseShop.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="LPXS.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

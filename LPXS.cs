@@ -6,6 +6,7 @@ using fr34kyn01535.Uconomy;
 using System.Data;
 using System.Collections.Generic;
 using UnityEngine;
+using SDG.Unturned;
 
 namespace LIGHT
 {
@@ -79,12 +80,8 @@ namespace LIGHT
                         this.Player.Color = color.Value;
                     }
                 }
-                if(LIGHT.Instance.Configuration.Instance.AutoRemoveEnabled)
-                {
-                    LIGHT.Instance.Database.AutoRemove();
-                }
+                
             }
-
         }
     }
 }

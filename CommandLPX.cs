@@ -46,38 +46,39 @@ namespace LIGHT
         {
             get
             {
-                return new List<string>() { "lpx" };
+                return new List<string>() { "lpx", "lpx.*"};
             }
         }
 
         public void Execute(IRocketPlayer caller,params string[] command)
         {
+            if (!LIGHT.Instance.Configuration.Instance.LPXEnabled) return;
             string[] permission = { };
             bool hasPerm = false;
-            UnturnedPlayer player;
             bool console = (caller is ConsolePlayer);
             if (!console)
             {
-                permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(caller.Id));
-                player = (UnturnedPlayer)caller;
-                for (int i = permission.Length - 1; i >= 0; i--)
+                if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
                 {
-                    if (permission[i] == "lpx")
+                    permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(caller.Id));
+                    for (int i = permission.Length - 1; i >= 0; i--)
                     {
-                        hasPerm = true;
+                        if (permission[i] == "lpx" || permission[i] == "lpx.*")
+                        {
+                            hasPerm = true;
+                        }
                     }
                 }
                 if (!hasPerm && !(caller.IsAdmin))
                 {
-                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                     return;
                 }
             }
-            string comd = String.Join(" ", command);
-            if (!LIGHT.Instance.Configuration.Instance.LPXEnabled) return;
+            string comd = String.Join(" ", command);          
             if (String.IsNullOrEmpty(comd.Trim()))
             {
-                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help"));
+                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help"));
                 return;
             }
             else
@@ -86,129 +87,129 @@ namespace LIGHT
                 hasPerm = false;
                 if (oper.Length == 1)
                 {
-                    switch (oper[0])
+                    switch (oper[0].ToLower())
                     {
                         case "adduser":                           
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.adduser")
+                                if (permission[i] == "lpx.adduser" || permission[i] == "lpx.*" || permission[i] == "lpx.addu")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_adduser"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_adduser"));
                             break;
                         case "removeuser":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removeuser")
+                                if (permission[i] == "lpx.removeuser" || permission[i] == "lpx.*" || permission[i] == "lpx.ru")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_removeuser"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_removeuser"));
                             break;
                         case "addgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroup")
+                                if (permission[i] == "lpx.addgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addg")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addgroup"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_addgroup"));
                             break;
                         case "removegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removegroup")
+                                if (permission[i] == "lpx.removegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.rg")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_removegroup"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_removegroup"));
                             break;
                         case "addpermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addpermission")
+                                if (permission[i] == "lpx.addpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.addp")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addpermission"));                               
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_addpermission"));                               
                             break;
                         case "removepermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removepermission")
+                                if (permission[i] == "lpx.removepermission" || permission[i] == "lpx.*" || permission[i] == "lpx.rp")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_removepermission"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_removepermission"));
                             break;
                         case "addgroupfreeitem":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroupfreeitem")
+                                if (permission[i] == "lpx.addgroupfreeitem" || permission[i] == "lpx.*" || permission[i] == "lpx.addgfi")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addgroupfreeitem"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_addgroupfreeitem"));
                             break;
                         case "setgroupincome":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setgroupincome")
+                                if (permission[i] == "lpx.setgroupincome" || permission[i] == "lpx.*" || permission[i] == "lpx.setgi")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_setgroupincome"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_setgroupincome"));
                             break;
                         case "listgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.listgroup")
+                                if (permission[i] == "lpx.listgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.listg")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -231,72 +232,72 @@ namespace LIGHT
                         case "listpermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.listpermission")
+                                if (permission[i] == "lpx.listpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.listp")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_listpermission"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_listpermission"));
                             break;
                         case "addparentgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addparentgroup")
+                                if (permission[i] == "lpx.addparentgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addpg")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addparentgroup"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_addparentgroup"));
                             break;
                         case "setpromotegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotegroup")
+                                if (permission[i] == "lpx.setpromotegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromog")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_setpromotegroup"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_setpromotegroup"));
                             break;
                         case "setpromotetime":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotetime")
+                                if (permission[i] == "lpx.setpromotetime" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromot")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_setpromotetime"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_setpromotetime"));
                             break;
                         case "enablepromote":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.enablepromote")
+                                if (permission[i] == "lpx.enablepromote" || permission[i] == "lpx.*" || permission[i] == "lpx.enpromo")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_enablepromote"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_enablepromote"));
                             break;
                         default:
                             break;
@@ -307,24 +308,24 @@ namespace LIGHT
                 {
                     string[] param = string.Join(" ", oper.Skip(1).ToArray()).Split(' ');
                     hasPerm = false;
-                    switch (oper[0])
+                    switch (oper[0].ToLower())
                     {
                         case "adduser":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.adduser")
+                                if (permission[i] == "lpx.adduser" || permission[i] == "lpx.*" || permission[i] == "lpx.addu")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
                             {
                                 if (param.Length == 1)
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_adduser2"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_adduser2"));
                                 }
                                 else if (param.Length == 2)
                                 {
@@ -334,18 +335,18 @@ namespace LIGHT
                                         if (target != null)
                                         {
                                             LIGHT.Instance.Database.AddUserIntoGroup(UnturnedPlayer.FromName(param[0]).Id, param[1]);
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_user", target.SteamName, param[1]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_added_user", target.SteamName, param[1]));
                                             LIGHT.Instance.Database.LastLogin(target.Id);
                                         }
                                         else
                                         {
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nouser"));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nouser"));
                                             return;
                                         }
                                     }
                                     else
                                     {
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                         return;
                                     }
                                 }
@@ -354,12 +355,12 @@ namespace LIGHT
                         case "removeuser":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removeuser")
+                                if (permission[i] == "lpx.removeuser" || permission[i] == "lpx.*" || permission[i] == "lpx.ru")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -373,19 +374,19 @@ namespace LIGHT
                                         {
                                             string group = LIGHT.Instance.Database.CheckUserGroup(target.Id);
                                             if (LIGHT.Instance.Database.RemoveUser(target.Id))
-                                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_removed_user", target.SteamName, group));
+                                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_removed_user", target.SteamName, group));
                                             else
-                                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_remove", target.SteamName, group));
+                                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_remove", target.SteamName, group));
                                         }
                                         else
                                         {
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nouser"));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nouser"));
                                             return;
                                         }
                                     }
                                     catch
                                     {
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nouser"));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nouser"));
                                         return;
                                     }
 
@@ -395,19 +396,19 @@ namespace LIGHT
                         case "addgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroup")
+                                if (permission[i] == "lpx.addgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addg")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
                             {
                                 if (LIGHT.Instance.Database.CheckGroup(param[0]))
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_group_exist", param[0]));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_group_exist", param[0]));
                                     return;
                                 }
                                 else if(param.Length >= 2)
@@ -426,7 +427,7 @@ namespace LIGHT
                                         {
                                             if (LIGHT.Instance.Database.CheckGroup(param[3]) == false)
                                             {
-                                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_group_notexist"));
+                                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_group_notexist"));
                                                 return;
                                             }
                                             else
@@ -435,71 +436,71 @@ namespace LIGHT
                                         if (param.Length >= 3)
                                             parentgroup = param[2];
                                         if (LIGHT.Instance.Database.AddGroup(param[0], param[1],parentgroup, updategroup,UpdateTime,EnableAuto))
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_group", param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_added_group", param[0]));
                                         else
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_group", param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_group", param[0]));
                                     }
                                     else
                                     {
                                         UnturnedChat.Say(caller, "Please only enter numbers in <income>");
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addgroup"));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_addgroup"));
                                         return;
                                     }
                                 }
                                 else if(param.Length == 1)
                                 {
                                     if (LIGHT.Instance.Database.AddGroup(param[0], "10",null,null, 7, false))
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_group", param[0]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_added_group", param[0]));
                                     else
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_group", param[0]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_group", param[0]));
                                 }
                                 else
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_invaild_para"));                             
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_invaild_para"));                             
                             }
                             break;
                         case "removegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removegroup")
+                                if (permission[i] == "lpx.removegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.rg")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
                             {
                                 if (!LIGHT.Instance.Database.CheckGroup(param[0]))
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup", param[0]));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup", param[0]));
                                     return;
                                 }
                                 else
                                 {
                                     if (LIGHT.Instance.Database.RemoveGroup(param[0]))
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_removed_group", param[0]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_removed_group", param[0]));
                                     else
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_removegroup", param[0]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_removegroup", param[0]));
                                 }
                             }
                             break;
                         case "addpermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addpermission")
+                                if (permission[i] == "lpx.addpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.addp")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
                             {
                                 if (param.Length == 1)
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addpermission2"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_addpermission2"));
                                 }
                                 else if(param.Length == 2)
                                 {
@@ -510,20 +511,20 @@ namespace LIGHT
                                             bool result;
                                             result = LIGHT.Instance.Database.AddPermissionIntoGroup(param[1], param[0]);
                                             if (result)
-                                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_permission", param[1], param[0]));
+                                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_added_permission", param[1], param[0]));
                                             else
-                                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_permission", param[1], param[0]));
+                                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_permission", param[1], param[0]));
                                         }
                                         else
                                         {
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_copypermission",param[1],param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_copypermission", param[1], param[0]));
                                             return;
                                         }
 
                                     }
                                     else
                                     {
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                         return;
                                     }
                                 }
@@ -532,19 +533,19 @@ namespace LIGHT
                         case "removepermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removepermission")
+                                if (permission[i] == "lpx.removepermission" || permission[i] == "lpx.*" || permission[i] == "lpx.rp")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
                             {
                                 if (param.Length == 1)
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_removepermission2"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_removepermission2"));
                                 }
                                 else if (param.Length == 2)
                                 {
@@ -553,13 +554,13 @@ namespace LIGHT
                                         bool result;
                                         result = LIGHT.Instance.Database.RemovePermissionFromGroup(param[0], param[1]);
                                         if (result)
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_remove_removepermission", param[1], param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_remove_removepermission", param[1], param[0]));
                                         else
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_removepermission", param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_removepermission", param[0]));
                                     }
                                     else
                                     {
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                         return;
                                     }
                                 }
@@ -569,12 +570,12 @@ namespace LIGHT
                             string permissions = "";
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.listpermission")
+                                if (permission[i] == "lpx.listpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.listp")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -588,13 +589,13 @@ namespace LIGHT
                                         {
                                             permissions += " " + permission[i];
                                         }
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_listp_group", param[0]));
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_listp_permission", permissions));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_listp_group", param[0]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_listp_permission", permissions));
                                     }
                                 }
                                 else
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_listpermission"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_listpermission"));
                                     return;
                                 }
                             }
@@ -602,19 +603,19 @@ namespace LIGHT
                         case "addgroupfreeitem":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroupfreeitem")
+                                if (permission[i] == "lpx.addgroupfreeitem" || permission[i] == "lpx.*" || permission[i] == "lpx.addgfi")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
                             {
                                 if (param.Length == 1)
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_help_addgroupfreeitem2"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_help_addgroupfreeitem2"));
                                 }
                                 else if (param.Length == 2)
                                 {
@@ -623,13 +624,13 @@ namespace LIGHT
                                         bool result;
                                         result = LIGHT.Instance.Database.AddGroupFreeItem(param[0], param[1]);
                                         if (result)
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_permission", param[0], param[1]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_added_permission", param[0], param[1]));
                                         else
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_permission", param[0], param[1]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_permission", param[0], param[1]));
                                     }
                                     else
                                     {
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                         return;
                                     }
                                 }
@@ -638,12 +639,12 @@ namespace LIGHT
                         case "setgroupincome":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setgroupincome")
+                                if (permission[i] == "lpx.setgroupincome" || permission[i] == "lpx.*" || permission[i] == "lpx.setgi")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -651,13 +652,13 @@ namespace LIGHT
                                 if (LIGHT.Instance.Database.CheckGroup(param[0]))
                                 {
                                     if (LIGHT.Instance.Database.SetGroupIncome(param[0], param[1]))
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_income", param[0], param[1]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_added_income", param[0], param[1]));
                                     else
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_setincome", param[0]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_setincome", param[0]));
                                 }
                                 else
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                     return;
                                 }
                             }
@@ -665,12 +666,12 @@ namespace LIGHT
                         case "addparentgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addparentgroup")
+                                if (permission[i] == "lpx.addparentgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addpg")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -679,17 +680,17 @@ namespace LIGHT
                                 {
                                     if (param[0] == param[1])
                                     {
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_add_sameparentgroup"));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_add_sameparentgroup"));
                                         return;
                                     }
                                     if (LIGHT.Instance.Database.AddParentGroup(param[0], param[1]))
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_added_parentgroup", param[0], param[1]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_added_parentgroup", param[0], param[1]));
                                     else
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_parentgroup", param[0], param[1]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_parentgroup", param[0], param[1]));
                                 }
                                 else
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                     return;
                                 }
                             }
@@ -697,12 +698,12 @@ namespace LIGHT
                         case "setpromotegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotegroup")
+                                if (permission[i] == "lpx.setpromotegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromog")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -710,13 +711,13 @@ namespace LIGHT
                                 if (LIGHT.Instance.Database.CheckGroup(param[0]))
                                 {
                                     if (LIGHT.Instance.Database.SetUpdateGroup(param[0], param[1]))
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_set_promotegroup", param[0], param[1]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_set_promotegroup", param[0], param[1]));
                                     else
-                                        UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_promotegroup", param[0], param[1]));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_promotegroup", param[0], param[1]));
                                 }
                                 else
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                     return;
                                 }
                             }
@@ -724,12 +725,12 @@ namespace LIGHT
                         case "setpromotetime":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotetime")
+                                if (permission[i] == "lpx.setpromotetime" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromot")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -739,13 +740,13 @@ namespace LIGHT
                                     int updateTime = 7;
                                     if (int.TryParse(param[1], out updateTime))
                                         if (LIGHT.Instance.Database.SetUpdateTime(param[0], updateTime))
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_set_promotetime", param[0], param[1]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_set_promotetime", param[0], param[1]));
                                         else
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_promotetime", param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_promotetime", param[0]));
                                 }
                                 else
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                     return;
                                 }
                             }
@@ -753,12 +754,12 @@ namespace LIGHT
                         case "enablepromote":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.enablepromote")
+                                if (permission[i] == "lpx.enablepromote" || permission[i] == "lpx.*" || permission[i] == "lpx.enpromo")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
                             {
-                                UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_no_perm"));
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
                                 return;
                             }
                             else
@@ -768,13 +769,13 @@ namespace LIGHT
                                 {
                                     if (bool.TryParse(param[1], out enable))
                                         if (LIGHT.Instance.Database.SetEnableUpdate(param[0], enable))
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_set_enablepromote", param[0], param[1]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_set_enablepromote", param[0], param[1]));
                                         else
-                                            UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_failed_enablepromote", param[0]));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_failed_enablepromote", param[0]));
                                 }
                                 else
                                 {
-                                    UnturnedChat.Say(caller, LIGHT.Instance.DefaultTranslations.Translate("lpx_fail_nogroup"));
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_fail_nogroup"));
                                     return;
                                 }
                             }

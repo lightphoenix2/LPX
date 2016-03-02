@@ -5,6 +5,7 @@ using Rocket.Unturned.Chat;
 using System.Collections.Generic;
 using Rocket.API.Serialisation;
 using System.Linq;
+using Rocket.Core.Logging;
 
 namespace LIGHT
 {
@@ -18,8 +19,7 @@ namespace LIGHT
             if (player.IsAdmin && player.Id != null)
                 group = "admin";
             else if (group == null || group == "")
-                group = "default";
-            
+                group = "default";         
             RocketPermissionsGroup RPG = new RocketPermissionsGroup(group, group, LIGHT.Instance.Database.getParentGroup(group), LIGHT.Instance.Database.getMembers(group), GetGroupPermission(player), LIGHT.Instance.Database.GetColor(group));
             Group.Add(RPG);
             return Group;
@@ -51,9 +51,11 @@ namespace LIGHT
             hasPerm = LIGHT.Instance.checkPermission(Permission, player.Id);
             if (player.IsAdmin)
                 hasPerm = true;
-            cooldown = null; 
+            cooldown = null;
             if (LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id)) != 0 && hasPerm)
-                cooldown = LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id));                                     
+            {
+                cooldown = LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id));
+            }              
             return defaultreturnvalue == false ? hasPerm : defaultreturnvalue;            
         }
         public bool SetGroup(IRocketPlayer caller , string group)

@@ -40,7 +40,8 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `steamID` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` where `group` = '" + group + "'"; 
+                command.CommandText = "select `steamID` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` where `group` = '" + group + "'";
+                //command.Parameters.AddWithValue("group", group);
                 connection.Open();              
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 adapter.Fill(dt);
@@ -49,7 +50,7 @@ namespace LIGHT
                 {
                     members += dt.Rows[i].ItemArray[0].ToString() + " ";
                 }
-                members.Trim();
+                members = members.Trim();
                 Members = members.Split(' ').ToList();
             }
             catch (Exception ex)
@@ -76,7 +77,7 @@ namespace LIGHT
                 {
                     PGroup += dt.Rows[i].ItemArray[0].ToString() + " ";
                 }
-                PGroup.Trim();
+                PGroup = PGroup.Trim();
             }
             catch (Exception ex)
             {
@@ -102,7 +103,7 @@ namespace LIGHT
                 {
                     PGroup += dt.Rows[i].ItemArray[0].ToString() + " ";
                 }
-                PGroup.Trim();
+                PGroup = PGroup.Trim();
                 Pgroups = PGroup.Split(' ');
             }
             catch (Exception ex)
@@ -254,7 +255,7 @@ namespace LIGHT
                             }
                             pgroupPerm[i] = NoColor;
                         }
-                        pgroupPerm[i].Trim();
+                       pgroupPerm[i] = pgroupPerm[i].Trim();
                     }
                     for (int i = 0; i < pgroupPerm.Length; i++)
                     {
@@ -408,7 +409,7 @@ namespace LIGHT
                     {
                         Items += (" " + ItemID[i]); 
                     }
-                    Items.Trim();
+                    Items = Items.Trim();
                     command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`freeitem`) values('" + Items + "')";
                 }
                 connection.Open();
@@ -452,7 +453,6 @@ namespace LIGHT
                             newpermissions += " " + permission[i];
                         else if (!(permission[i].Contains("color.")))
                             newpermissions += permission[i];
-                        Logger.Log(permission[i]);
                         if (permission[i].Contains("color."))
                         {                           
                             if (i == 0)
@@ -684,12 +684,12 @@ namespace LIGHT
             if (group == "")
                 group = "default";
             string exist="";
-            string[] stringArr = new string[50];
+            string[] stringArr = {};
             try
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `freeitem` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where name = '" + group + "'";
+                command.CommandText = "select `freeitems` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where name = '" + group + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 if (result != null) exist = result.ToString();
@@ -710,7 +710,7 @@ namespace LIGHT
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "select `freeitem` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where name = '" + group + "'";
+                command.CommandText = "select `freeitems` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 if (result != null) exist = result.ToString();
@@ -769,7 +769,7 @@ namespace LIGHT
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     Date = dt.Rows[i].ItemArray[0].ToString();
-                    Date.Trim();
+                    Date = Date.Trim();
                     Date.Replace("-", "/");
                     if ((DateTime.Now - (Convert.ToDateTime(Date))).Days > LIGHT.Instance.Configuration.Instance.AutoRemoveDays)
                     {     
@@ -777,7 +777,7 @@ namespace LIGHT
                         bool immunity = false;
                         for (int x = 0; x < Permission.Length; x ++ )
                         {
-                            if (Permission[x].ToLower() == "lpx.autoremoveimmunity")
+                            if (Permission[x].ToLower() == "lpx.autoremoveimmunity" || Permission[x].ToLower() == "lpx.autori")
                                 immunity = true;
                         }
                         if(!immunity)
@@ -983,7 +983,7 @@ namespace LIGHT
                         {
                             Color += buff[y];
                         }
-                        Color.Trim();
+                        Color = Color.Trim();
                     }
                 }
             }
@@ -1001,6 +1001,7 @@ namespace LIGHT
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `cooldown` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "'";
+                command.Parameters.AddWithValue("name", group);
                 connection.Open();
                 object obj = command.ExecuteScalar();
                 if (uint.TryParse(obj.ToString(), out cooldown) == false)
@@ -1058,6 +1059,7 @@ namespace LIGHT
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `name` from `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` where `name` = '" + name + "'";
+                command.Parameters.AddWithValue("name", name);
                 connection.Open();
                 object obj = command.ExecuteScalar();
                 if (obj == null)
@@ -1068,7 +1070,7 @@ namespace LIGHT
             }
             catch (Exception ex)
             {
-                Logger.Log(ex);
+                Logger.LogException(ex);
             }
             return exist;
         }
@@ -1088,7 +1090,7 @@ namespace LIGHT
             }
             catch (Exception ex)
             {
-                Logger.Log(ex);
+                Logger.LogException(ex);
             }
             return cooldown;
         }
@@ -1108,7 +1110,7 @@ namespace LIGHT
             }
             catch (Exception ex)
             {
-                Logger.Log(ex);
+                Logger.LogException(ex);
             }
             return ItemIDNAmt;
         }
@@ -1133,7 +1135,7 @@ namespace LIGHT
             }
             catch (Exception ex)
             {
-                Logger.Log(ex);
+                Logger.LogException(ex);
             }
             
             return AllKitName;
@@ -1165,7 +1167,7 @@ namespace LIGHT
             }
             catch (Exception ex)
             {
-                Logger.Log(ex);
+                Logger.LogException(ex);
             }
             return PlayerKitName;
         }
@@ -1188,50 +1190,449 @@ namespace LIGHT
             }
             return added;
         }
+        public bool AddKit(string name,string itemid, double cooldown)
+        {
+            bool added = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` (`name`,`itemID/Amt`,`cooldown`) values('" + name + "', '" + itemid + "', " + cooldown + ")";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
+        }
+        public bool CheckCarExistInDB(string carNo)
+        {
+            bool exist = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `carNo` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + carNo + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj == null)
+                    exist = false;
+                else
+                    exist = true;
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return exist;
+        }
+        public bool AddCar(string carNo, string carID, string carName)
+        {
+            bool added = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` (`carNo`,`carID`,`carName`) values('" + carNo + "', '" + carID + "', " + carName + ")";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
+        }
+        public bool AddOwnership(string carNo, string playerID, string playerName)
+        {
+            bool added = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `name` = '" + playerName + "' where `carNo` = '" + carNo + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `id` = '" + playerID + "' where `carNo` = '" + carNo + "'";
+                command.ExecuteScalar();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `Locked` = 'True' where `carNo` = '" + carNo + "'";
+                command.ExecuteScalar();
+                connection.Close();
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
+        }
+        public string CheckOwner(string CarNo)
+        {
+            string ID = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `id` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    ID = obj.ToString();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return ID;
+        }
+        public string GetOwnerName(string CarNo)
+        {
+            string Name = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `name` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    Name = obj.ToString();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return Name;
+        }
+        public string CheckCarDestoryed(string CarNo)
+        {
+            string CarID = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `carID` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    CarID = obj.ToString();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return CarID;
+        }
+        public void RemovedDestoryedCar(string CarNo)
+        {
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "Delete from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+        }
+        public bool AddLockedStatus(string carNo, bool Locked)
+        {
+            bool added = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `Locked` = '" + Locked.ToString() + "' where `carNo` = '" + carNo + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
+        }
+        public bool CheckLockedStatus(string CarNo)
+        {
+            string Locked = "";
+            bool locked = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `Locked` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    Locked = obj.ToString();
+                connection.Close();
+                bool.TryParse(Locked, out locked);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return locked;
+        }
+        public string[] GetGivenKeys(string CarNo)
+        {
+            string[] KeyOwners = {};
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `givenKeys` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    KeyOwners = obj.ToString().Split(' ');
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return KeyOwners;
+        }
+        public bool AddGivenKeys(string CarNo, string TargetPlayerID)
+        {
+            bool added = false;
+            string exist = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `givenKeys` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                object result = command.ExecuteScalar();
+                connection.Close();
+                if (result == null || result.ToString() == "")
+                {
+                    connection.Open();
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `givenKeys` = '" + TargetPlayerID + "' where `carNo` = '" + CarNo + "'";
+                    command.ExecuteScalar();
+                    connection.Close();
+                }
+                else
+                {
+                    exist = result.ToString().Trim();
+                    string combine = exist + " " + TargetPlayerID.Trim();
+                    connection.Open();
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `givenKeys` = '" + combine + "' where `carNo` = '" + CarNo + "'";
+                    command.ExecuteScalar();
+                    connection.Close();
+                }
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
+        }
+        public bool RemoveGiveKeysCar(string CarNo, string ID)
+        {
+            string[] keys = { };
+            string newkey = "";
+            bool keyexist = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `givenKeys` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `carNo` = '" + CarNo + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                connection.Close();
+                if(obj != null)
+                {
+                    keys = obj.ToString().Split(' ');
+                    for(int x = 0; x < keys.Length ; x ++)
+                    {
+                        if(keys[x].Trim() == ID)
+                        {
+                            keyexist = true;
+                        }
+                        else
+                        {
+                            newkey += keys[x] + " ";
+                        }
+                    }
+                    newkey = newkey.Trim();
+                }
+                else
+                {
+                    return keyexist;
+                }
+                if (keyexist)
+                {
+                    command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `givenKeys` = '" + newkey + "' where `carNo` = '" + CarNo + "'";
+                    connection.Open();
+                    command.ExecuteScalar();
+                    connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return keyexist;
+        }
+        public string GetAllOwnedCars(string id)
+        {
+            DataTable dt = new DataTable();
+            string carNo = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `carNo` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` where `id` = '"+ id +"'";
+                connection.Open();
+                MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+                adapter.Fill(dt);
+                connection.Close();
+                for (int i = 0; i < (dt.Rows.Count); i++)
+                {
+                    if (i < (dt.Rows.Count - 1))
+                        carNo += dt.Rows[i].ItemArray[0].ToString() + ", ";
+                    else
+                        carNo += dt.Rows[i].ItemArray[0].ToString();
+                }
+                carNo = carNo.Trim();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return carNo;
+        }
+        public string[] GetAllCars()
+        {
+            DataTable dt = new DataTable();
+            string[] carNo = {};
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `carNo` from `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "`";
+                connection.Open();
+                MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+                adapter.Fill(dt);
+                carNo = new string[dt.Rows.Count];
+                connection.Close();
+                for (int i = 0; i < (dt.Rows.Count); i++)
+                {
+                    if (dt.Rows[i].ItemArray[0].ToString() != "" && dt.Rows[i].ItemArray[0].ToString() != " ")
+                    {
+                        carNo[i] = dt.Rows[i].ItemArray[0].ToString();
+                        carNo[i] = carNo[i].Trim();
+                    }
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return carNo;
+        }
+        public bool UpdateCarNo(ushort carNo)
+        {
+            bool added = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `carNo` = '" + (carNo-1).ToString() + "' where `carNo` = '" + carNo.ToString() + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
+        }
         internal void CheckSchema()
         {
             try
             {
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
-                command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "'";
                 connection.Open();
-                object test = command.ExecuteScalar();
-                if (test == null)
+                object test;
+                if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
                 {
-                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId` varchar(32) NOT NULL,`SteamName` varchar(46),`group` varchar(32),`lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,`hours` decimal(10) NOT NULL DEFAULT 0, PRIMARY KEY (`steamId`)) ";
-                    command.ExecuteNonQuery();
-                }
-                else
-                {                    
-                    command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` LIKE 'SteamName'";
+                    command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "'";                    
                     test = command.ExecuteScalar();
                     if (test == null)
                     {
-                        command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` ADD `SteamName` VARCHAR(46) AFTER `steamId`";
+                        command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId` varchar(32) NOT NULL,`SteamName` varchar(46),`group` varchar(32),`lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,`hours` decimal(10) NOT NULL DEFAULT 0, PRIMARY KEY (`steamId`)) ";
                         command.ExecuteNonQuery();
                     }
-                }
-                command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "'";
-                test = command.ExecuteScalar();
+                    else
+                    {
+                        command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` LIKE 'SteamName'";
+                        test = command.ExecuteScalar();
+                        if (test == null)
+                        {
+                            command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` ADD `SteamName` VARCHAR(46) AFTER `steamId`";
+                            command.ExecuteNonQuery();
+                        }
+                    }
 
-                if (test == null)
-                {
-                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name` varchar(32) NOT NULL,`permission` varchar(668),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitem` int(8),`parentgroup` varchar(32),`updategroup` varchar(32),`updatetime` decimal(10) NOT NULL DEFAULT 15.00,`updateenable` bool,`cooldown` varchar(255),PRIMARY KEY (`name`)) ";
-                    command.ExecuteNonQuery();
-                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('default', 10,7,0)";
-                    command.ExecuteNonQuery();
-                    command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('admin', 60,7,0)";
-                    command.ExecuteNonQuery();
-                }
-                else
-                {
-                    command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` LIKE 'cooldown'";
+                    command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "'";
                     test = command.ExecuteScalar();
+
                     if (test == null)
                     {
-                        command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` ADD `cooldown` VARCHAR(255) AFTER `permission`";
+                        command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name` varchar(32) NOT NULL,`permission` varchar(668),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitems` varchar(100),`parentgroup` varchar(32),`updategroup` varchar(32),`updatetime` decimal(10) NOT NULL DEFAULT 15.00,`updateenable` bool,`cooldown` varchar(255),PRIMARY KEY (`name`)) ";
                         command.ExecuteNonQuery();
+                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('default', 10,7,0)";
+                        command.ExecuteNonQuery();
+                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('admin', 60,7,0)";
+                        command.ExecuteNonQuery();
+                    }
+                    else
+                    {
+                        command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` LIKE 'cooldown'";
+                        test = command.ExecuteScalar();
+                        if (test == null)
+                        {
+                            command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` ADD `cooldown` VARCHAR(255) AFTER `permission`";
+                            command.ExecuteNonQuery();
+                        }
+                        command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` LIKE 'freeitem'";
+                        test = command.ExecuteScalar();
+                        if (test != null)
+                        {
+                            command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` DROP COLUMN `freeitem`";
+                            command.ExecuteNonQuery();
+                        }
+                        command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` LIKE 'freeitems'";
+                        test = command.ExecuteScalar();
+                        if (test == null)
+                        {
+                            command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` ADD `freeitems` VARCHAR(100) AFTER `income`";
+                            command.ExecuteNonQuery();
+                        }
                     }
                 }
                 if (LIGHT.Instance.Configuration.Instance.KitsEnabled)
@@ -1250,6 +1651,26 @@ namespace LIGHT
                         command.ExecuteNonQuery();
                     }
                 }
+                command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "'";
+                test = command.ExecuteScalar();
+
+                if (test == null)
+                {
+                    command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` (`name` varchar(32),`id` varchar(18),`carNo` varchar(5),`carID` varchar(6),`carName` varchar(30),`givenKeys` varchar(255),`Locked` varchar(5),PRIMARY KEY (`carNo`)) ";
+                    command.ExecuteNonQuery();
+                }
+                else
+                {
+                    command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` LIKE 'Locked'";
+                    test = command.ExecuteScalar();
+                    if (test == null)
+                    {
+                        command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` ADD `Locked` varchar(5) AFTER `givenKeys`";
+                        command.ExecuteNonQuery();
+                    }
+                }
+                command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseItemShop + "` CHANGE COLUMN `ItemName` `ItemName` VARCHAR(56) NOT NULL";
+                command.ExecuteNonQuery();
                 connection.Close();
             }
             catch (Exception ex)
