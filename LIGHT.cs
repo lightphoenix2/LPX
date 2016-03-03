@@ -256,9 +256,12 @@ namespace LIGHT
                 {"not_have_item_auction", "You do not have any {0} for auctioning."},
                 {"auction_item_notinshop","The item you are auctioning is not available from the shop."},
                 {"auction_item_mag_ammo","Unable to auction magazines or ammo!"},
-                {"auction_item_succes","You have placed {0} on auction for {1}{2}"},
+                {"auction_item_succes","You have placed {0} on auction for {1} {2}"},
                 {"auction_item_failed","Fail to place item on auction"},
-                {"auction_unequip_item","Please de-equip {0} first before auctioning"}
+                {"auction_unequip_item","Please de-equip {0} first before auctioning"},
+                {"auction_buycommand_usage","/auction buy <ID 0 - 9 ...>"},
+                {"auction_addcommand_idnotexist","Auction ID does not exist!"},
+                {"auction_buy_msg","You got item {0} for {1} {2}.  You now have {3} {4}."}
                 };
             }
         }

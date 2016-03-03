@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using fr34kyn01535.Uconomy;
+using Steamworks;
 
 namespace LIGHT
 {
@@ -81,15 +82,27 @@ namespace LIGHT
                         string[] ItemNameAndQuality = LIGHT.Instance.DatabaseAuction.GetAllItemNameWithQuality();
                         string[] AuctionID = LIGHT.Instance.DatabaseAuction.GetAllAuctionID();
                         string[] ItemPrice = LIGHT.Instance.DatabaseAuction.GetAllItemPrice();
+                        int count = 0;
                         for (int x = 0; x < ItemNameAndQuality.Length; x++)
                         {
                             if(x < ItemNameAndQuality.Length-1)
-                                Message += AuctionID[x] + ": " + ItemNameAndQuality[x] + " for "+ ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName +", ";
+                                Message += "[" + AuctionID[x] + "]: " + ItemNameAndQuality[x] + " for "+ ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName +", ";
                             else
-                                Message += AuctionID[x] + ": " + ItemNameAndQuality[x] + " for " + ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName;
+                                Message += "[" + AuctionID[x] + "]: " + ItemNameAndQuality[x] + " for " + ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName;
+                            count ++;
+                            if(count == 2)
+                            {
+                                UnturnedChat.Say(player, Message);
+                                Message = "";
+                                count = 0;
+                            }
                         }
-                        UnturnedChat.Say(player, Message);
+                        if(Message != "")
+                            UnturnedChat.Say(player, Message);
                         break;
+                    case ("buy"):
+                        UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_buycommand_usage"));
+                        return;
                 }
             }
             if (command.Length == 2)
@@ -99,6 +112,43 @@ namespace LIGHT
                     case ("add"):
                         UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_addcommand_usage2"));
                         return;
+                    case ("buy"):
+                        int auctionid = 0;
+                        if (int.TryParse(command[1], out auctionid))
+                        {
+                            try
+                            {
+                                string[] itemInfo = LIGHT.Instance.DatabaseAuction.AuctionBuy(auctionid);
+                                decimal balance = Uconomy.Instance.Database.GetBalance(player.Id);
+                                decimal cost = 1.00m;
+                                decimal.TryParse(itemInfo[2], out cost);                               
+                                if (balance < cost)
+                                {
+                                    UnturnedChat.Say(player, LIGHT.Instance.DefaultTranslations.Translate("not_enough_currency_msg", Uconomy.Instance.Configuration.Instance.MoneyName, itemInfo[1]));
+                                    return;
+                                }                                                               
+                                player.GiveItem(ushort.Parse(itemInfo[0]), 1);
+                                InventorySearch inventory = player.Inventory.has(ushort.Parse(itemInfo[0]));
+                                byte index = player.Inventory.getIndex(inventory.page, inventory.jar.PositionX, inventory.jar.PositionY);
+                                player.Inventory.updateQuality(inventory.page, index, byte.Parse(itemInfo[3]));
+                                LIGHT.Instance.DatabaseAuction.DeleteAuction(command[1]);
+                                decimal newbal = Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), (cost * -1));
+                                UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_buy_msg", itemInfo[1], cost, Uconomy.Instance.Configuration.Instance.MoneyName, newbal, Uconomy.Instance.Configuration.Instance.MoneyName));
+                                decimal sellernewbalance = Uconomy.Instance.Database.IncreaseBalance(itemInfo[4], (cost * 1));
+                            }
+                            catch
+                            {
+                                UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_addcommand_idnotexist"));
+                                return;
+                            }
+                            
+                        }
+                        else
+                        {
+                            UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_addcommand_usage2"));
+                            return;
+                        }
+                        break;
                 }
             }
             if (command.Length > 2)

@@ -99,6 +99,7 @@ namespace LIGHT
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 adapter.Fill(dt);
                 connection.Close();
+                Pgroups = new string[dt.Rows.Count];
                 for (int i = 0; i < dt.Rows.Count; i++)
                 {
                     PGroup += dt.Rows[i].ItemArray[0].ToString() + " ";
@@ -666,7 +667,8 @@ namespace LIGHT
                 connection.Open();
                 MySqlDataAdapter adapter = new MySqlDataAdapter(command);
                 adapter.Fill(dt);
-                connection.Close();             
+                connection.Close();
+                stringArr = new decimal[dt.Rows.Count];
                 for (int i = 0; i < (dt.Rows.Count); i++)
                 {
                     stringArr[i] += decimal.Parse(dt.Rows[i].ItemArray[0].ToString());

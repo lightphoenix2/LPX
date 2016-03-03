@@ -179,6 +179,46 @@ namespace LIGHT
             }
             return ItemPrice;
         }
+        public string[] AuctionBuy(int auctionID)
+        {
+            DataTable dt = new DataTable();
+            string[] ItemInfo = new string [5];
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `itemid`,`ItemName`, `Price`, `Quality`, `SellerID` from `" + LIGHT.Instance.Configuration.Instance.DatabaseAuction + "` where `id` = " + auctionID.ToString() + "";
+                connection.Open();
+                MySqlDataAdapter adapter = new MySqlDataAdapter(command);
+                adapter.Fill(dt);
+                connection.Close();
+                for (int i = 0; i < (dt.Columns.Count); i++)
+                {
+                    ItemInfo[i] = dt.Rows[0].ItemArray[i].ToString();
+                }              
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return ItemInfo; 
+        }
+        public void DeleteAuction(string auctionID)
+        {
+            try
+            {
+                MySqlConnection Connection = this.createConnection();
+                MySqlCommand Command = Connection.CreateCommand();
+                Command.CommandText = "delete from `" + LIGHT.Instance.Configuration.Instance.DatabaseAuction + "` where id = '" + auctionID + "'";
+                Connection.Open();
+                object obj = Command.ExecuteNonQuery();
+                Connection.Close();
+            }
+            catch (Exception exception)
+            {
+                Logger.LogException(exception);
+            }
+        }
         internal void CheckSchema()
         {
             try
