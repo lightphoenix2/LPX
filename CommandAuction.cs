@@ -57,7 +57,7 @@ namespace LIGHT
                 return new List<string>() {"auction"};
             }
         }
-        public void Execute(IRocketPlayer caller, string[] command)
+        public void Execute(IRocketPlayer caller, params string[] command)
         {
             if(!LIGHT.Instance.Configuration.Instance.AllowAuction)
             {

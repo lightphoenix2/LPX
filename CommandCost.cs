@@ -56,7 +56,7 @@ namespace LIGHT
                 return new List<string>() { "cost" }; 
             }
         }
-        public void Execute(IRocketPlayer caller, string[] command)
+        public void Execute(IRocketPlayer caller, params string[] command)
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
             string message;

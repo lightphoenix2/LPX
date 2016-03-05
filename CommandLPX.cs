@@ -63,7 +63,7 @@ namespace LIGHT
                     permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(caller.Id));
                     for (int i = permission.Length - 1; i >= 0; i--)
                     {
-                        if (permission[i] == "lpx" || permission[i] == "lpx.*")
+                        if (permission[i] == "lpx" || permission[i] == "lpx.*" || permission[i] == "*")
                         {
                             hasPerm = true;
                         }
@@ -92,7 +92,7 @@ namespace LIGHT
                         case "adduser":                           
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.adduser" || permission[i] == "lpx.*" || permission[i] == "lpx.addu")
+                                if (permission[i] == "lpx.adduser" || permission[i] == "lpx.*" || permission[i] == "lpx.addu" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -106,7 +106,7 @@ namespace LIGHT
                         case "removeuser":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removeuser" || permission[i] == "lpx.*" || permission[i] == "lpx.ru")
+                                if (permission[i] == "lpx.removeuser" || permission[i] == "lpx.*" || permission[i] == "lpx.ru" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -120,7 +120,7 @@ namespace LIGHT
                         case "addgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addg")
+                                if (permission[i] == "lpx.addgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addg" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -134,7 +134,7 @@ namespace LIGHT
                         case "removegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.rg")
+                                if (permission[i] == "lpx.removegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.rg" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -148,7 +148,7 @@ namespace LIGHT
                         case "addpermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.addp")
+                                if (permission[i] == "lpx.addpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.addp" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -162,7 +162,7 @@ namespace LIGHT
                         case "removepermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removepermission" || permission[i] == "lpx.*" || permission[i] == "lpx.rp")
+                                if (permission[i] == "lpx.removepermission" || permission[i] == "lpx.*" || permission[i] == "lpx.rp" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -176,7 +176,7 @@ namespace LIGHT
                         case "addgroupfreeitem":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroupfreeitem" || permission[i] == "lpx.*" || permission[i] == "lpx.addgfi")
+                                if (permission[i] == "lpx.addgroupfreeitem" || permission[i] == "lpx.*" || permission[i] == "lpx.addgfi" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -190,7 +190,7 @@ namespace LIGHT
                         case "setgroupincome":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setgroupincome" || permission[i] == "lpx.*" || permission[i] == "lpx.setgi")
+                                if (permission[i] == "lpx.setgroupincome" || permission[i] == "lpx.*" || permission[i] == "lpx.setgi" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -204,7 +204,7 @@ namespace LIGHT
                         case "listgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.listgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.listg")
+                                if (permission[i] == "lpx.listgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.listg" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -232,7 +232,7 @@ namespace LIGHT
                         case "listpermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.listpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.listp")
+                                if (permission[i] == "lpx.listpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.listp" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -246,7 +246,7 @@ namespace LIGHT
                         case "addparentgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addparentgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addpg")
+                                if (permission[i] == "lpx.addparentgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addpg" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -260,7 +260,7 @@ namespace LIGHT
                         case "setpromotegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromog")
+                                if (permission[i] == "lpx.setpromotegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromog" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -274,7 +274,7 @@ namespace LIGHT
                         case "setpromotetime":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotetime" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromot")
+                                if (permission[i] == "lpx.setpromotetime" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromot" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -288,7 +288,7 @@ namespace LIGHT
                         case "enablepromote":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.enablepromote" || permission[i] == "lpx.*" || permission[i] == "lpx.enpromo")
+                                if (permission[i] == "lpx.enablepromote" || permission[i] == "lpx.*" || permission[i] == "lpx.enpromo" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -313,7 +313,7 @@ namespace LIGHT
                         case "adduser":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.adduser" || permission[i] == "lpx.*" || permission[i] == "lpx.addu")
+                                if (permission[i] == "lpx.adduser" || permission[i] == "lpx.*" || permission[i] == "lpx.addu" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -355,7 +355,7 @@ namespace LIGHT
                         case "removeuser":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removeuser" || permission[i] == "lpx.*" || permission[i] == "lpx.ru")
+                                if (permission[i] == "lpx.removeuser" || permission[i] == "lpx.*" || permission[i] == "lpx.ru" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -396,7 +396,7 @@ namespace LIGHT
                         case "addgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addg")
+                                if (permission[i] == "lpx.addgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addg" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -461,7 +461,7 @@ namespace LIGHT
                         case "removegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.rg")
+                                if (permission[i] == "lpx.removegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.rg" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -488,7 +488,7 @@ namespace LIGHT
                         case "addpermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.addp")
+                                if (permission[i] == "lpx.addpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.addp" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -533,7 +533,7 @@ namespace LIGHT
                         case "removepermission":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.removepermission" || permission[i] == "lpx.*" || permission[i] == "lpx.rp")
+                                if (permission[i] == "lpx.removepermission" || permission[i] == "lpx.*" || permission[i] == "lpx.rp" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -570,7 +570,7 @@ namespace LIGHT
                             string permissions = "";
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.listpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.listp")
+                                if (permission[i] == "lpx.listpermission" || permission[i] == "lpx.*" || permission[i] == "lpx.listp" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -603,7 +603,7 @@ namespace LIGHT
                         case "addgroupfreeitem":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addgroupfreeitem" || permission[i] == "lpx.*" || permission[i] == "lpx.addgfi")
+                                if (permission[i] == "lpx.addgroupfreeitem" || permission[i] == "lpx.*" || permission[i] == "lpx.addgfi" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -639,7 +639,7 @@ namespace LIGHT
                         case "setgroupincome":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setgroupincome" || permission[i] == "lpx.*" || permission[i] == "lpx.setgi")
+                                if (permission[i] == "lpx.setgroupincome" || permission[i] == "lpx.*" || permission[i] == "lpx.setgi" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -666,7 +666,7 @@ namespace LIGHT
                         case "addparentgroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.addparentgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addpg")
+                                if (permission[i] == "lpx.addparentgroup" || permission[i] == "lpx.*" || permission[i] == "lpx.addpg" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -698,7 +698,7 @@ namespace LIGHT
                         case "setpromotegroup":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromog")
+                                if (permission[i] == "lpx.setpromotegroup" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromog" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -725,7 +725,7 @@ namespace LIGHT
                         case "setpromotetime":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.setpromotetime" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromot")
+                                if (permission[i] == "lpx.setpromotetime" || permission[i] == "lpx.*" || permission[i] == "lpx.setpromot" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))
@@ -754,7 +754,7 @@ namespace LIGHT
                         case "enablepromote":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.enablepromote" || permission[i] == "lpx.*" || permission[i] == "lpx.enpromo")
+                                if (permission[i] == "lpx.enablepromote" || permission[i] == "lpx.*" || permission[i] == "lpx.enpromo" || permission[i] == "*")
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))

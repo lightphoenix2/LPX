@@ -65,7 +65,7 @@ namespace LIGHT
             if (command.Length > 0)
             {
 
-                if (player.HasPermission("car") || player.HasPermission("car.*"))
+                if (player.HasPermission("car") || player.HasPermission("car.*") || player.HasPermission("*"))
                 {
                     hasPerm = true;
                 }
@@ -80,7 +80,7 @@ namespace LIGHT
                     switch (command[0].ToLower())
                     {
                         case "refuel":
-                            if (player.HasPermission("car.refuel") || player.HasPermission("car.*"))
+                            if (player.HasPermission("car.refuel") || player.HasPermission("car.*") || player.HasPermission("*"))
                                 hasPerm = true;
                             if (!hasPerm && !(caller.IsAdmin))
                             {
@@ -260,7 +260,7 @@ namespace LIGHT
                             }
                             break;
                         case "repair":
-                            if (player.HasPermission("car.repair") || player.HasPermission("car.*"))
+                            if (player.HasPermission("car.repair") || player.HasPermission("car.*") || player.HasPermission("*"))
                                 hasPerm = true;
                             if (!hasPerm && !(caller.IsAdmin))
                             {

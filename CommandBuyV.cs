@@ -72,7 +72,7 @@ namespace LIGHT
                 {
                     for (int i = permission.Length - 1; i >= 0; i--)
                     {
-                        if (permission[i] == "buyv" || permission[i] == "lpx.buyv")
+                        if (permission[i] == "buyv" || permission[i] == "lpx.buyv" || permission[i] == "*")
                         {
                             hasPerm = true;
                         }
@@ -80,7 +80,7 @@ namespace LIGHT
                 }
                 else
                 {
-                    if (player.HasPermission("buyv"))
+                    if (player.HasPermission("buyv") || player.HasPermission("*"))
                         hasPerm = true;
                 }
                 if (!hasPerm && !(caller.IsAdmin))

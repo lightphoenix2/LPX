@@ -53,7 +53,7 @@ namespace LIGHT
         {
             get { return new List<string>() { "shop.*", "shop.add", "shop.rem", "shop.chng", "shop.buy" }; }
         }
-        public void Execute(IRocketPlayer caller, string[] command)
+        public void Execute(IRocketPlayer caller, params string[] command)
         {
             bool console = (caller is ConsolePlayer);
             bool hasperm = false;
@@ -61,7 +61,7 @@ namespace LIGHT
             if (!console)
             {
                 UnturnedPlayer player = (UnturnedPlayer)caller;
-                if (player.HasPermission("shop.*") || player.HasPermission("shop.add") || player.HasPermission("shop.rem") || player.HasPermission("shop.chng") || player.HasPermission("shop.buy"))
+                if (player.HasPermission("shop.*") || player.HasPermission("shop.add") || player.HasPermission("shop.rem") || player.HasPermission("shop.chng") || player.HasPermission("shop.buy") || player.HasPermission("*"))
                     hasperm = true;
             }
             if (!hasperm && !console)
@@ -116,7 +116,7 @@ namespace LIGHT
                 switch (command[0])
                 {
                     case "chng":
-                        if (caller.HasPermission("shop.*") || caller.HasPermission("shop.chng"))
+                        if (caller.HasPermission("shop.*") || caller.HasPermission("shop.chng") || caller.HasPermission("*"))
                         {
                             change = true;
                             pass = true;
@@ -130,7 +130,7 @@ namespace LIGHT
                     case "add":
                         if (!pass)
                         {
-                            if (!caller.HasPermission("shop.*") && !caller.HasPermission("shop.add"))
+                            if (!caller.HasPermission("shop.*") && !caller.HasPermission("shop.add") && !caller.HasPermission("*"))
                             {
                                 UnturnedChat.Say(caller, LIGHT.Instance.Translate("no_permission_shop_add"));
                                 return;
@@ -178,7 +178,7 @@ namespace LIGHT
                         }
                         break;
                     case "rem":
-                        if (!caller.HasPermission("shop.*") && !caller.HasPermission("shop.rem"))
+                        if (!caller.HasPermission("shop.*") && !caller.HasPermission("shop.rem") && !caller.HasPermission("*"))
                         {
                             message = LIGHT.Instance.DefaultTranslations.Translate("no_permission_shop_rem", new object[] { });
                             this.sendMessage(caller, message, console);
@@ -225,7 +225,7 @@ namespace LIGHT
                         }
                         break;
                     case "buy":
-                        if (!caller.HasPermission("shop.*") && !caller.HasPermission("shop.buy"))
+                        if (!caller.HasPermission("shop.*") && !caller.HasPermission("shop.buy") && !caller.HasPermission("*"))
                         {
                             UnturnedChat.Say(caller, LIGHT.Instance.Translate("no_permission_shop_buy"));
                             return;

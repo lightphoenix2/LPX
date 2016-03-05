@@ -51,9 +51,12 @@ namespace LIGHT
         }
         public List<string> Permissions
         {
-            get { return new List<string>() { "buy" }; }
+            get 
+            { 
+                return new List<string>() { "buy" }; 
+            }
         }
-        public void Execute(IRocketPlayer caller, string[] command)
+        public void Execute(IRocketPlayer caller, params string[] command)
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
             if (command.Length == 0)
@@ -62,25 +65,26 @@ namespace LIGHT
                 return;
             }
             byte amttobuy = 1;
-            string newcomponents = "";
-            byte CheckString;
-            bool result1 = byte.TryParse(command[0], out CheckString), result = false;
-            if (result1 == false && command.Length > 1)
-                result = byte.TryParse(command[command.Length - 1], out amttobuy);
+            string Itemname = "";
+            byte CheckItemID = 0;
+            bool IsID = byte.TryParse(command[0], out CheckItemID);
+            bool IsAmtKeyed = false;
+            if (!IsID  && command.Length > 1)
+                IsAmtKeyed = byte.TryParse(command[command.Length - 1], out amttobuy);
             for (int i = 0; i < (command.Length - 1); i++)
             {
                 if (i == (command.Length - 2))
-                    newcomponents += command[i];
+                    Itemname += command[i];
                 else
-                    newcomponents += command[i] + " ";
+                    Itemname += command[i] + " ";
             }
-            if (result == false)
+            if (!IsAmtKeyed)
             {
                 amttobuy = 1;
                 if (command.Length == 2)
-                    newcomponents = command[0] + " " + command[1];
+                    Itemname = command[0] + " " + command[1];
                 else if (command.Length == 1)
-                    newcomponents = command[0];
+                    Itemname = command[0];
             }
             string[] components = Parser.getComponentsFromSerial(command[0], '.');
             if (components.Length == 2 && components[0] != "v")
@@ -160,14 +164,14 @@ namespace LIGHT
                         return;
                     }
                     name = null;
-                    if (!ushort.TryParse(newcomponents, out id))
+                    if (!ushort.TryParse(Itemname, out id))
                     {
                         Asset[] array = Assets.find(EAssetType.ITEM);
                         Asset[] array2 = array;
                         for (int i = 0; i < array2.Length; i++)
                         {
                             ItemAsset vAsset = (ItemAsset)array2[i];
-                            if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(newcomponents.ToLower()))
+                            if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(Itemname.ToLower()))
                             {
                                 id = vAsset.Id;
                                 name = vAsset.Name;
@@ -177,7 +181,7 @@ namespace LIGHT
                     }
                     if (name == null && id == 0)
                     {
-                        UnturnedChat.Say(player, LIGHT.Instance.Translate("could_not_find", newcomponents));
+                        UnturnedChat.Say(player, LIGHT.Instance.Translate("could_not_find", Itemname));
                         return;
                     }
                     else if (name == null && id != 0)

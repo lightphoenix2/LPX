@@ -52,15 +52,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\Desktop\Rocket Plugin\Libraries\MySql.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.API, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Rocket.API, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\unturned\Unturned_Data\Managed\Rocket.API.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Core, Version=2.3.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Rocket.Core, Version=2.4.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\unturned\Unturned_Data\Managed\Rocket.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Rocket.Unturned, Version=4.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Rocket.Unturned, Version=4.9.2.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\unturned\Unturned_Data\Managed\Rocket.Unturned.dll</HintPath>
     </Reference>

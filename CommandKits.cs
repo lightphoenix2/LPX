@@ -62,24 +62,9 @@ namespace LIGHT
             bool console = (caller is ConsolePlayer);
             if (!console)
             {
-                if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
+                if (caller.HasPermission("kits") || caller.HasPermission("kits.*") || caller.HasPermission("*"))
                 {
-                    permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(caller.Id));
-                    
-                    for (int i = permission.Length - 1; i >= 0; i--)
-                    {
-                        if (permission[i] == "kits" || permission[i] == "kits.*")
-                            hasPerm = true;
-                        if (permission[i] == "kit.*")
-                            Kits = LIGHT.Instance.Database.GetAllKitName();
-                    }
-                }
-                else
-                {
-                    if(caller.HasPermission("kits") || caller.HasPermission("kits.*"))
-                    {
-                        hasPerm = true;
-                    }
+                    hasPerm = true;
                 }
                 if (!hasPerm && !(caller.IsAdmin))
                 {
@@ -106,21 +91,10 @@ namespace LIGHT
                 switch (command[0].ToLower())
                 {
                     case "all":
-                        if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
+                        if (caller.HasPermission("kits.all") || caller.HasPermission("kits.*") || caller.HasPermission("*"))
                         {
-                            for (int i = permission.Length - 1; i >= 0; i--)
-                            {
-                                if (permission[i] == "kits.all" || permission[i] == "kits.*")
-                                    hasPerm = true;
-                            }
-                        }
-                        else
-                        {
-                            if (caller.HasPermission("kits.all") || caller.HasPermission("kits.*"))
-                            {
-                                hasPerm = true;
-                            }
-                        }
+                            hasPerm = true;
+                        }                      
                         if (!hasPerm && !console && !(caller.IsAdmin))
                         {
                             UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
@@ -143,20 +117,9 @@ namespace LIGHT
                         }
                         break;
                     case "cooldown":
-                        if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
+                        if (caller.HasPermission("kits.cd") || caller.HasPermission("kits.*") || caller.HasPermission("*"))
                         {
-                            for (int i = permission.Length - 1; i >= 0; i--)
-                            {
-                                if (permission[i] == "kits.cd" || permission[i] == "kits.*")
-                                    hasPerm = true;
-                            }
-                        }
-                        else
-                        {
-                            if (caller.HasPermission("kits.cd") || caller.HasPermission("kits.*"))
-                            {
-                                hasPerm = true;
-                            }
+                            hasPerm = true;
                         }
                         if (!hasPerm && !console && !(caller.IsAdmin))
                         {
@@ -205,20 +168,9 @@ namespace LIGHT
                         }
                         break;
                     case "add":
-                        if (LIGHT.Instance.Configuration.Instance.LPXEnabled)
+                        if (caller.HasPermission("kits.add") || caller.HasPermission("kits.*") || caller.HasPermission("*"))
                         {
-                            for (int i = permission.Length - 1; i >= 0; i--)
-                            {
-                                if (permission[i] == "kits.add" || permission[i] == "kits.*")
-                                    hasPerm = true;
-                            }
-                        }
-                        else
-                        {
-                            if (caller.HasPermission("kits.add") || caller.HasPermission("kits.*"))
-                            {
-                                hasPerm = true;
-                            }
+                            hasPerm = true;
                         }
                         if (!hasPerm && !console && !(caller.IsAdmin))
                         {
@@ -253,6 +205,51 @@ namespace LIGHT
                                 else
                                 {
                                     UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_add_failed",KitName));
+                                    return;
+                                }
+                            }
+                        }
+                        break;
+                    case "remove":
+                        if (caller.HasPermission("kits.remove") || caller.HasPermission("kits.*") || caller.HasPermission("*"))
+                        {
+                            hasPerm = true;
+                        }
+                        if (!hasPerm && !console && !(caller.IsAdmin))
+                        {
+                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_no_perm"));
+                            return;
+                        }
+                        else
+                        {
+                            if (command.Length == 1)
+                            {
+                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_remove_help"));
+                                return;
+                            }
+                            if (command.Length >= 2)
+                            {
+                                string KitName = "";
+                                for (int x = 1; x < command.Length; x++)
+                                {
+                                    KitName += command[x] + " ";
+                                }
+                                KitName = KitName.Trim();
+                                if(LIGHT.Instance.Database.CheckKit(KitName))
+                                {
+                                    if(LIGHT.Instance.Database.RemoveKit(KitName))
+                                    {
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_remove_success", KitName));
+                                    }
+                                    else
+                                    {
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("kits_remove_failed", KitName));
+                                        return;
+                                    }
+                                }
+                                else
+                                {
+                                    UnturnedChat.Say(caller, LIGHT.Instance.Translate("kit_notexist"));
                                     return;
                                 }
                             }

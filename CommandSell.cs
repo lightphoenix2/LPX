@@ -56,7 +56,7 @@ namespace LIGHT
                 return new List<string>() {"sell"};
             }
         }
-        public void Execute(IRocketPlayer caller, string[] command)
+        public void Execute(IRocketPlayer caller, params string[] command)
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
             if (command.Length == 0)

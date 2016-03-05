@@ -198,6 +198,38 @@ namespace LIGHT
             }
             return CopyDetected;
         }
+        public bool checkhaveAllPermission(string group)
+        {
+            string[] permissions = { };
+            bool HasAllPermission = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `name` = '" + group + "';";
+                connection.Open();
+                object perm = command.ExecuteScalar();
+                if (perm != null)
+                {
+                    permissions = (perm.ToString()).Split(' ');
+                }
+                connection.Close();
+                for (int x = 0; x < permissions.Length; x++)
+                {
+                    if (permissions[x] == "*")
+                    {
+                        HasAllPermission = true;
+                    }
+                    else
+                        HasAllPermission = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return HasAllPermission;
+        }
         public string[] getGroupPermission(string group)
         {
             string[] permission = { };
@@ -1210,6 +1242,25 @@ namespace LIGHT
                 Logger.LogException(ex);
             }
             return added;
+        }
+        public bool RemoveKit(string name)
+        {
+            bool removed = false;
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "Delete from `" + LIGHT.Instance.Configuration.Instance.DatabaseKit + "` where `name` = '" + name + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+                removed = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return removed;
         }
         public bool CheckCarExistInDB(string carNo)
         {

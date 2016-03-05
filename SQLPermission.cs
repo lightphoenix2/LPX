@@ -41,7 +41,7 @@ namespace LIGHT
         {
             bool hasPerm = false;
             hasPerm = LIGHT.Instance.checkPermission(Permission, player.Id);
-            if (player.IsAdmin)
+            if (player.IsAdmin || LIGHT.Instance.Database.checkhaveAllPermission(LIGHT.Instance.Database.CheckUserGroup(player.Id)))
                 hasPerm = true;
             return defaultreturnvalue == false ? hasPerm : defaultreturnvalue;
         }
@@ -49,7 +49,7 @@ namespace LIGHT
         {
             bool hasPerm = false;
             hasPerm = LIGHT.Instance.checkPermission(Permission, player.Id);
-            if (player.IsAdmin)
+            if (player.IsAdmin || LIGHT.Instance.Database.checkhaveAllPermission(LIGHT.Instance.Database.CheckUserGroup(player.Id)))
                 hasPerm = true;
             cooldown = null;
             if (LIGHT.Instance.Database.Cooldown(LIGHT.Instance.Database.CheckUserGroup(player.Id)) != 0 && hasPerm)

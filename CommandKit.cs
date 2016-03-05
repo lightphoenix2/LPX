@@ -78,7 +78,7 @@ namespace LIGHT
                 {
                     for (int i = permission.Length - 1; i >= 0; i--)
                     {
-                        if (permission[i] == "kit.*" || (permission[i] == ("kit." + command[0]) && command.Length == 1))
+                        if (permission[i] == "kit.*" || (permission[i] == ("kit." + command[0]) && command.Length == 1) || permission[i] == "*")
                         {
                             hasPerm = true;
                         }
@@ -91,7 +91,7 @@ namespace LIGHT
                 }
                 else
                 {
-                    if(player.HasPermission("kit.*") || player.HasPermission("kit." + kitnamePermission) || player.HasPermission("kit.*"))
+                    if (player.HasPermission("kit.*") || player.HasPermission("kit." + kitnamePermission) || player.HasPermission("kit.*") || player.HasPermission("*"))
                     {
                         hasPerm = true;
                     }

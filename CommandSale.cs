@@ -56,7 +56,7 @@ namespace LIGHT
             bool hasPerm = false;
             if (!console)
             {
-                if (caller.HasPermission("sale.*") || caller.HasPermission("sale.start") || caller.HasPermission("sale.stop") || caller.HasPermission("sale"))
+                if (caller.HasPermission("sale.*") || caller.HasPermission("sale.start") || caller.HasPermission("sale.stop") || caller.HasPermission("sale") || caller.HasPermission("*"))
                 {
                     hasPerm = true;
                 }
@@ -75,7 +75,7 @@ namespace LIGHT
                 switch (command[0])
                 {
                     case "stop":
-                        if (caller.HasPermission("sale.*") || caller.HasPermission("sale.stop"))
+                        if (caller.HasPermission("sale.*") || caller.HasPermission("sale.stop") || caller.HasPermission("*"))
                         {
                             LIGHT.Instance.sale.resetSale();
                             if (!console)
@@ -91,7 +91,7 @@ namespace LIGHT
                         }
                         break;
                     case "start":
-                        if (caller.HasPermission("sale.*") || caller.HasPermission("sale.start"))
+                        if (caller.HasPermission("sale.*") || caller.HasPermission("sale.start") || caller.HasPermission("*"))
                         {
                             if (!LIGHT.Instance.sale.salesStart)
                             {
