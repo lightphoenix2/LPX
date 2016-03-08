@@ -1,12 +1,8 @@
-﻿using Rocket.Unturned;
-using Rocket.Unturned.Commands;
-using Rocket.Unturned.Player;
+﻿using Rocket.Unturned.Player;
 using Rocket.Unturned.Chat;
 using System;
 using Rocket.API;
-using System.Linq;
 using SDG.Unturned;
-using System.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using Rocket.Core.Logging;
@@ -164,19 +160,19 @@ namespace LIGHT
                             {
                                 if (command.Length == 1)
                                 {
-                                    if(LIGHT.Instance.Database.CheckOwner(veh.index.ToString()) == player.Id)
+                                    if(LIGHT.Instance.DatabaseCar.CheckOwner(veh.index.ToString()) == player.Id)
                                     {
-                                        LIGHT.Instance.Database.AddLockedStatus(veh.index.ToString(), true);
+                                        LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.index.ToString(), true);
                                         UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Locked",veh.index.ToString()));
                                     }
                                     else
                                     {
-                                        string[] PlayersWithKey = LIGHT.Instance.Database.GetGivenKeys(veh.index.ToString());
+                                        string[] PlayersWithKey = LIGHT.Instance.DatabaseCar.GetGivenKeys(veh.index.ToString());
                                         for(int x = 0; x < PlayersWithKey.Length; x++)
                                         {
                                             if(PlayersWithKey[x].Trim() == player.Id)
                                             {
-                                                LIGHT.Instance.Database.AddLockedStatus(veh.index.ToString(), true);
+                                                LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.index.ToString(), true);
                                                 UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Locked", veh.index.ToString()));
                                                 break;
                                             }
@@ -199,9 +195,9 @@ namespace LIGHT
                             {
                                 if (command.Length == 1)
                                 {
-                                    if (LIGHT.Instance.Database.CheckOwner(veh.index.ToString()) == player.Id)
+                                    if (LIGHT.Instance.DatabaseCar.CheckOwner(veh.index.ToString()) == player.Id)
                                     {
-                                        LIGHT.Instance.Database.AddLockedStatus(veh.index.ToString(), false);
+                                        LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.index.ToString(), false);
                                         UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Unlocked", veh.index.ToString()));
                                     }
                                     else
@@ -230,14 +226,14 @@ namespace LIGHT
                             }
                             if(command.Length > 2)
                             {
-                                if (LIGHT.Instance.Database.CheckCarExistInDB(command[1]))
+                                if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(command[1]))
                                 {
-                                    if (LIGHT.Instance.Database.CheckOwner(command[1]) == player.Id)
+                                    if (LIGHT.Instance.DatabaseCar.CheckOwner(command[1]) == player.Id)
                                     {
                                         UnturnedPlayer PlayerKey = UnturnedPlayer.FromName(command[2]);
                                         if (PlayerKey != null)
                                         {
-                                            LIGHT.Instance.Database.AddGivenKeys(command[1], PlayerKey.Id);
+                                            LIGHT.Instance.DatabaseCar.AddGivenKeys(command[1], PlayerKey.Id);
                                             UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_key_given",command[1], PlayerKey.CharacterName));
                                         }
                                         else
@@ -320,9 +316,9 @@ namespace LIGHT
                             }
                             if(command.Length == 2)
                             {
-                                if (LIGHT.Instance.Database.CheckCarExistInDB(command[1]))
+                                if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(command[1]))
                                 {
-                                    if (LIGHT.Instance.Database.CheckOwner(command[1]) == player.Id)
+                                    if (LIGHT.Instance.DatabaseCar.CheckOwner(command[1]) == player.Id)
                                     {
                                         Vector3 point;
                                         byte angle;
@@ -373,15 +369,15 @@ namespace LIGHT
                             }
                             if(command.Length > 2)
                             {
-                                if (LIGHT.Instance.Database.CheckCarExistInDB(command[1]))
+                                if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(command[1]))
                                 {
                                     UnturnedPlayer target;
-                                    if (LIGHT.Instance.Database.CheckOwner(command[1]) == player.Id)
+                                    if (LIGHT.Instance.DatabaseCar.CheckOwner(command[1]) == player.Id)
                                     {
                                         target = UnturnedPlayer.FromName(command[2]);
                                         if (target == null)
                                         {
-                                            if(LIGHT.Instance.Database.RemoveGiveKeysCar(command[1], command[2]))
+                                            if(LIGHT.Instance.DatabaseCar.RemoveGiveKeysCar(command[1], command[2]))
                                             {
                                                 UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_rkey_success", command[2], command[1]));
                                             }
@@ -393,7 +389,7 @@ namespace LIGHT
                                         }
                                         else
                                         {
-                                            if (LIGHT.Instance.Database.RemoveGiveKeysCar(command[1], target.Id))
+                                            if (LIGHT.Instance.DatabaseCar.RemoveGiveKeysCar(command[1], target.Id))
                                             {
                                                 UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_rkey_success", target.CharacterName, command[1]));
                                             }
@@ -418,7 +414,7 @@ namespace LIGHT
                             }
                             break;
                         case "list":
-                            string cars = LIGHT.Instance.Database.GetAllOwnedCars(player.Id);
+                            string cars = LIGHT.Instance.DatabaseCar.GetAllOwnedCars(player.Id);
                             if(cars == "" || cars == " ")
                             {
                                 UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_zero_owned"));

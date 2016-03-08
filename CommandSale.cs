@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Rocket.API;
-using Rocket.Unturned.Commands;
 using Rocket.Unturned.Player;
-using Rocket.Unturned;
 using Rocket.Core.Logging;
 using Rocket.Unturned.Chat;
 
@@ -52,6 +50,11 @@ namespace LIGHT
         }
         public void Execute(IRocketPlayer caller, params string[] command)
         {
+            if (!LIGHT.Instance.Configuration.Instance.EnableShop || !LIGHT.Instance.Configuration.Instance.SaleEnable)
+            {
+                UnturnedChat.Say(caller, LIGHT.Instance.Translate("shop_disable"));
+                return;
+            }
             bool console = (caller == null) ? true : false;
             bool hasPerm = false;
             if (!console)

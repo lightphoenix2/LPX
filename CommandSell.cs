@@ -1,11 +1,6 @@
 ﻿using Rocket.API;
-using Rocket.API.Serialisation;
-using Rocket.Core;
 using Rocket.Core.Logging;
-using Rocket.Core.Permissions;
-using Rocket.Unturned;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Commands;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using System;
@@ -58,6 +53,11 @@ namespace LIGHT
         }
         public void Execute(IRocketPlayer caller, params string[] command)
         {
+            if (!LIGHT.Instance.Configuration.Instance.EnableShop)
+            {
+                UnturnedChat.Say(caller, LIGHT.Instance.Translate("shop_disable"));
+                return;
+            }
             UnturnedPlayer player = (UnturnedPlayer)caller;
             if (command.Length == 0)
             {
@@ -74,32 +74,41 @@ namespace LIGHT
             }
             string name = null;
             ItemAsset vAsset = null;
-            string newcomponents = "";
-            bool result = byte.TryParse(command[command.Length - 1], out amt);
-            for (int i = 0; i < (command.Length - 1); i++)
+            string ItemName = "";
+            bool HaveAmt = false;
+            if (command.Length > 1)
             {
-                if (i == (command.Length - 2))
-                    newcomponents += command[i];
+                HaveAmt = byte.TryParse(command[command.Length - 1], out amt);
+                if (!HaveAmt)
+                {
+                    amt = 1;
+                    if (command.Length == 2)
+                        ItemName = command[0] + " " + command[1];
+                    else if (command.Length == 1)
+                        ItemName = command[0];
+                }
                 else
-                    newcomponents += command[i] + " ";
+                {
+                    for (int i = 0; i < (command.Length - 1); i++)
+                    {
+                        if (i == (command.Length - 2))
+                            ItemName += command[i];
+                        else
+                            ItemName += command[i] + " ";
+                    }
+                }
             }
-            if (result == false)
-            {
-                amt = 1;
-                if (command.Length == 2)
-                    newcomponents = command[0] + " " + command[1];
-                else if (command.Length == 1)
-                    newcomponents = command[0];
-            }
+            else
+                ItemName = command[0].Trim();
             amttosell = amt;
-            if (!ushort.TryParse(newcomponents, out id))
+            if (!ushort.TryParse(ItemName, out id))
             {
                 Asset[] array = Assets.find(EAssetType.ITEM);
                 Asset[] array2 = array;
                 for (int i = 0; i < array2.Length; i++)
                 {
                     vAsset = (ItemAsset)array2[i];
-                    if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(newcomponents.ToLower()))
+                    if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(ItemName.ToLower()))
                     {
                         id = vAsset.Id;
                         name = vAsset.Name;
@@ -109,13 +118,21 @@ namespace LIGHT
             }
             if (name == null && id == 0)
             {
-                UnturnedChat.Say(player, LIGHT.Instance.Translate("could_not_find", newcomponents));
+                UnturnedChat.Say(player, LIGHT.Instance.Translate("could_not_find", ItemName));
                 return;
             }
             else if (name == null && id != 0)
             {
-                vAsset = (ItemAsset)Assets.find(EAssetType.ITEM, id);
-                name = vAsset.Name;
+                try
+                {
+                    vAsset = (ItemAsset)Assets.find(EAssetType.ITEM, id);
+                    name = vAsset.Name;
+                }
+                catch
+                {
+                    UnturnedChat.Say(player, LIGHT.Instance.Translate("item_invalid"));
+                    return;
+                }
             }
             if (player.Inventory.has(id) == null)
             {

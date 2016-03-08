@@ -1,6 +1,4 @@
-﻿using Rocket.Unturned;
-using Rocket.Unturned.Commands;
-using Rocket.Unturned.Player;
+﻿using Rocket.Unturned.Player;
 using Rocket.Unturned.Chat;
 using System;
 using Rocket.API;
@@ -90,14 +88,14 @@ namespace LIGHT
                 }                                
                 else
                 {
-                    if(LIGHT.Instance.Database.CheckOwner(command[0]) != "")
+                    if(LIGHT.Instance.DatabaseCar.CheckOwner(command[0]) != "")
                     {
                         UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_car_alreadyown"));
                         return;
                     }
                     else
                     {
-                        if (LIGHT.Instance.Database.CheckCarExistInDB(command[0]))
+                        if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(command[0]))
                         {
                             decimal price = decimal.Parse("100");
                             decimal.TryParse(LIGHT.Instance.Configuration.Instance.LicencePrice.ToString(), out price);
@@ -109,7 +107,7 @@ namespace LIGHT
                             }
                             decimal bal = Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), (price * -1));
                             if (bal >= 0.0m) UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("new_balance_msg", new object[] { bal, Uconomy.Instance.Configuration.Instance.MoneyName }));
-                            if (!LIGHT.Instance.Database.AddOwnership(command[0], player.Id, player.SteamName))
+                            if (!LIGHT.Instance.DatabaseCar.AddOwnership(command[0], player.Id, player.SteamName))
                             {
                                 UnturnedChat.Say(caller, LIGHT.Instance.Translate("lpx_car_purchaseFailed"));
                                 bal = Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), price);

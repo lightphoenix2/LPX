@@ -1,16 +1,10 @@
 ﻿using Rocket.API;
-using Rocket.API.Serialisation;
-using Rocket.Core;
 using Rocket.Core.Logging;
-using Rocket.Core.Permissions;
-using Rocket.Unturned;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Commands;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using fr34kyn01535.Uconomy;
 
 namespace LIGHT
@@ -58,6 +52,11 @@ namespace LIGHT
         }
         public void Execute(IRocketPlayer caller, params string[] command)
         {
+            if (!LIGHT.Instance.Configuration.Instance.EnableShop)
+            {
+                UnturnedChat.Say(caller, LIGHT.Instance.Translate("shop_disable"));
+                return;
+            }
             UnturnedPlayer player = (UnturnedPlayer)caller;
             string message;
             if (command.Length == 0)
@@ -151,9 +150,12 @@ namespace LIGHT
                     }
                     cost = LIGHT.Instance.ShopDB.GetItemCost(id);
                     decimal bbp = LIGHT.Instance.ShopDB.GetItemBuyPrice(id);
-                    decimal saleprice = Convert.ToDecimal(Convert.ToDouble(LIGHT.Instance.Configuration.Instance.SalePercentage) / 100.00);
-                    if (LIGHT.Instance.sale.salesStart == true)
-                        cost = (cost * (Convert.ToDecimal(1.00) - saleprice));
+                    if (LIGHT.Instance.Configuration.Instance.SaleEnable)
+                    {
+                        decimal saleprice = Convert.ToDecimal(Convert.ToDouble(LIGHT.Instance.Configuration.Instance.SalePercentage) / 100.00);
+                        if (LIGHT.Instance.sale.salesStart == true)
+                            cost = (cost * (Convert.ToDecimal(1.00) - saleprice));
+                    }
                     message = LIGHT.Instance.Translate("item_cost_msg", new object[] { name, cost.ToString(), Uconomy.Instance.Configuration.Instance.MoneyName, bbp.ToString(), Uconomy.Instance.Configuration.Instance.MoneyName });
                     if (cost <= 0m)
                         message = LIGHT.Instance.Translate("error_getting_cost", new object[] { name });

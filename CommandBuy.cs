@@ -1,11 +1,6 @@
 ﻿using Rocket.API;
-using Rocket.API.Serialisation;
-using Rocket.Core;
 using Rocket.Core.Logging;
-using Rocket.Core.Permissions;
-using Rocket.Unturned;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Commands;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using fr34kyn01535.Uconomy;
@@ -17,6 +12,16 @@ namespace LIGHT
 {
     public class CommandBuy : IRocketCommand
     {
+        public string Help
+        {
+            get { return "Allows you to buy items from the shop"; }
+        }
+
+        public string Name
+        {
+            get { return "buy"; }
+        }
+
         public AllowedCaller AllowedCaller
         {
             get
@@ -24,52 +29,45 @@ namespace LIGHT
                 return AllowedCaller.Player;
             }
         }
-        public string Name
-        {
-            get
-            {
-                return "buy";
-            }
-        }
-        public string Help
-        {
-            get
-            {
-                return "Allows you to buy items from the shop.";
-            }
-        }
+
         public string Syntax
         {
-            get
-            {
-                return "[v.]<name or id> [amount] [25 | 50 | 75 | 100]";
-            }
+            get { return "[v.]<name or id> [amount] [25 | 50 | 75 | 100]"; }
         }
+
         public List<string> Aliases
         {
             get { return new List<string>(); }
         }
+
         public List<string> Permissions
         {
-            get 
-            { 
-                return new List<string>() { "buy" }; 
+            get
+            {
+                return new List<string>() { "buy"};
             }
         }
+
         public void Execute(IRocketPlayer caller, params string[] command)
         {
+            if(!LIGHT.Instance.Configuration.Instance.EnableShop)
+            {
+                UnturnedChat.Say(caller, LIGHT.Instance.Translate("shop_disable"));
+                return;
+            }
             UnturnedPlayer player = (UnturnedPlayer)caller;
             if (command.Length == 0)
             {
                 UnturnedChat.Say(player, LIGHT.Instance.Translate("buy_command_usage"));
                 return;
             }
+            
             byte amttobuy = 1;
             string Itemname = "";
             byte CheckItemID = 0;
             bool IsID = byte.TryParse(command[0], out CheckItemID);
             bool IsAmtKeyed = false;
-            if (!IsID  && command.Length > 1)
+            if (command.Length > 1)
                 IsAmtKeyed = byte.TryParse(command[command.Length - 1], out amttobuy);
             for (int i = 0; i < (command.Length - 1); i++)
             {
@@ -197,9 +195,12 @@ namespace LIGHT
                         }
                     }
                     cost = decimal.Round(LIGHT.Instance.ShopDB.GetItemCost(id) * amttobuy, 2);
-                    decimal saleprice = Convert.ToDecimal(Convert.ToDouble(LIGHT.Instance.Configuration.Instance.SalePercentage) / 100.00);
-                    if (LIGHT.Instance.sale.salesStart == true)
-                        cost = decimal.Round((cost * (Convert.ToDecimal(1.00) - saleprice)), 2);
+                    if (LIGHT.Instance.Configuration.Instance.SaleEnable)
+                    {
+                        decimal saleprice = Convert.ToDecimal(Convert.ToDouble(LIGHT.Instance.Configuration.Instance.SalePercentage) / 100.00);
+                        if (LIGHT.Instance.sale.salesStart == true)
+                            cost = decimal.Round((cost * (Convert.ToDecimal(1.00) - saleprice)), 2);
+                    }
                     balance = Uconomy.Instance.Database.GetBalance(player.Id);
                     if (cost <= 0m)
                     {

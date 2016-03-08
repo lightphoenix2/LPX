@@ -87,6 +87,7 @@
     <Compile Include="CommandSell.cs" />
     <Compile Include="CommandShop.cs" />
     <Compile Include="DatabaseAuction.cs" />
+    <Compile Include="DatabaseCar.cs" />
     <Compile Include="Sales.cs" />
     <Compile Include="CommandCar.cs" />
     <Compile Include="CommandBuyV.cs" />
