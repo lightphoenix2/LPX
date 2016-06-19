@@ -72,11 +72,11 @@ namespace LIGHT
                 {
                     try
                     {                     
-                        ia = (ItemAsset)Assets.find(EAssetType.ITEM, x);
+                        ia = (ItemAsset)Assets.find(EAssetType.ITEM, x);                       
                         if(ia.itemName != "" && ia.itemName != " ")
                             LIGHT.Instance.ShopDB.AutoAddItem((int)ia.id, ia.Name, LIGHT.Instance.ShopDB.CheckItemExist(x));
                         LIGHT.Instance.ShopDB.DeleteEmptyItemRow(x);
-                        if(x == 700)
+                        if(x == 500)
                             Logger.Log("We are halfway there...", ConsoleColor.Yellow);
                     }
                     catch
@@ -85,6 +85,25 @@ namespace LIGHT
                     }
                 }
                 Logger.Log("Item Database Updated!", ConsoleColor.Yellow);
+                VehicleAsset va;
+                Logger.Log("Loading Vehicle Database...", ConsoleColor.Yellow);
+                for (ushort x = 0; x < 20000; x++)
+                {
+                    try
+                    {
+                        va = (VehicleAsset)Assets.find(EAssetType.VEHICLE, x);
+                        if (va.vehicleName != "" && va.vehicleName != " ")
+                            LIGHT.Instance.ShopDB.AutoAddVehicle((int)va.id, va.vehicleName, LIGHT.Instance.ShopDB.CheckVehicleExist(x));
+                        LIGHT.Instance.ShopDB.DeleteEmptyVehicleRow(x);
+                        if (x == 50)
+                            Logger.Log("Should be quick...", ConsoleColor.Yellow);
+                    }
+                    catch
+                    {
+                        LIGHT.Instance.ShopDB.DeleteVehicle(x);
+                    }
+                }
+                Logger.Log("Vehicle Database Updated!", ConsoleColor.Yellow);
             }
             
         }
@@ -254,7 +273,7 @@ namespace LIGHT
                 {"sale_command","The next sale will start in {0} Minutes"},
                 {"sale_end","Sales have ended, all price are back to normal"},
                 {"sale_ending", "Sale is ending in {0} {1}"},
-                {"auction_command_usage","/auction add, /auction list, /auction find"},
+                {"auction_command_usage","/auction add, /auction list, /auction find, /auction cancel"},
                 {"auction_addcommand_usage","/auction <Item Name or ID> <Price>"},
                 {"auction_addcommand_usage2","Missing <Price> Parameter"},
                 {"auction_disabled","Auction is disabled."},
@@ -266,7 +285,14 @@ namespace LIGHT
                 {"auction_unequip_item","Please de-equip {0} first before auctioning"},
                 {"auction_buycommand_usage","/auction buy <ID 0 - 9 ...>"},
                 {"auction_addcommand_idnotexist","Auction ID does not exist!"},
-                {"auction_buy_msg","You got item {0} for {1} {2}.  You now have {3} {4}."}           
+                {"auction_buy_msg","You got item {0} for {1} {2}.  You now have {3} {4}."},
+                {"auction_notexist","Auction ID does not exist"},
+                {"auction_notown","You do not own that auction!"},
+                {"auction_cancelled","You have remove Auction {0}"},
+                {"auction_cancelcommand_usage","/auction cancel [Auction ID]"},
+                {"auction_findcommand_usage","/auction find [Item Name or ID]"},
+                {"auction_find_invalid","Invalid Item ID or Item Name"},
+                {"auction_find_failed","No item found with that ID/Name"}
                 };
             }
         }
@@ -282,7 +308,46 @@ namespace LIGHT
             }
             return hasPerm;
         }
-
+        public bool checkPermission(List <string> PermissionCmd, string ID)
+        {
+            string[] permission = { };
+            bool hasPerm = false;
+            permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(ID));
+            for (int i = permission.Length - 1; i >= 0; i--)
+            {
+                if (PermissionCmd.Contains(permission[i]))
+                    hasPerm = true;
+            }
+            return hasPerm;
+        }
+        public bool checkPermission(IRocketCommand Command, string ID)
+        {
+            string[] permission = { }, cmdPermission = { }, Permi = { };
+            bool hasPerm = false;
+            permission = LIGHT.Instance.Database.getGroupPermission(LIGHT.Instance.Database.CheckUserGroup(ID));
+            cmdPermission = Command.Permissions.ToArray();
+            if (cmdPermission.Length < 1)
+                return true;
+            else
+            {
+                for (int x = cmdPermission.Length - 1; x >= 0; x--)
+                {
+                    for (int i = permission.Length - 1; i >= 0; i--)
+                    {
+                        if (cmdPermission[x].Contains('.'))
+                        {
+                            Permi = cmdPermission[x].Split('.');
+                            if (permission[i].Trim() == Permi[1].Trim())
+                                return true;
+                        }
+                        if (cmdPermission[x] == (permission[i]))
+                                return true;
+                    }
+                }
+                
+            }
+            return hasPerm;
+        }
         public void RocketServerEvents_OnPlayerConnected(UnturnedPlayer player)
         {
             string[] permission = { };
@@ -328,21 +393,21 @@ namespace LIGHT
         private void OnPlayerUpdateStance(UnturnedPlayer player, byte stance)
         {
             
-            if (stance == (byte)6)
+            if (stance == (byte)6 && LIGHT.Instance.Configuration.Instance.AllowCarOwnerShip)
             {
                 InteractableVehicle veh = player.Player.Movement.getVehicle();            
-                if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(veh.index.ToString()))
+                if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(veh.instanceID.ToString()))
                 {
-                    if(LIGHT.Instance.DatabaseCar.CheckCarDestoryed(veh.index.ToString()) != veh.id.ToString())
+                    if (LIGHT.Instance.DatabaseCar.CheckCarDestoryed(veh.instanceID.ToString()) != veh.id.ToString())
                     {
-                        int CheckIDOld = veh.index + 1;
+                        uint CheckIDOld = veh.instanceID + 1;
                         string PlayerID = LIGHT.Instance.DatabaseCar.GetOwnerID((CheckIDOld).ToString());
                         string CarID = LIGHT.Instance.DatabaseCar.GetCarID((CheckIDOld).ToString());
                         if(PlayerID == player.Id && CarID == veh.id.ToString())
                         {
-                            LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(veh.index.ToString());
+                            LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(veh.instanceID.ToString());
                             LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(CheckIDOld.ToString());
-                            LIGHT.Instance.DatabaseCar.AddOwnership(veh.index.ToString(), player.Id, player.SteamName);
+                            LIGHT.Instance.DatabaseCar.AddOwnership(veh.instanceID.ToString(), player.Id, player.SteamName);
                             return;
                         }
                         else 
@@ -354,14 +419,14 @@ namespace LIGHT
                                 CarID = LIGHT.Instance.DatabaseCar.GetCarID(CheckIDOld.ToString());
                                 if (PlayerID == player.Id && CarID == veh.id.ToString())
                                 {
-                                    LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(veh.index.ToString());
+                                    LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(veh.instanceID.ToString());
                                     LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(CheckIDOld.ToString());
-                                    LIGHT.Instance.DatabaseCar.AddOwnership(veh.index.ToString(), player.Id, player.SteamName);
+                                    LIGHT.Instance.DatabaseCar.AddOwnership(veh.instanceID.ToString(), player.Id, player.SteamName);
                                     return;
                                 }
                             }
                         }
-                        LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(veh.index.ToString());
+                        LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(veh.instanceID.ToString());
                         if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
                         {
                             byte seat = 0;
@@ -375,13 +440,13 @@ namespace LIGHT
                             }
                             veh.kickPlayer(seat);
                         }
-                        LIGHT.Instance.DatabaseCar.AddCar(veh.index.ToString(), veh.id.ToString(), veh.name);
-                        UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.index.ToString()));
+                        LIGHT.Instance.DatabaseCar.AddCar(veh.instanceID.ToString(), veh.id.ToString(), veh.name);
+                        UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.instanceID.ToString()));
                         return;
                     }
-                    if(LIGHT.Instance.DatabaseCar.CheckOwner(veh.index.ToString())== "")
+                    if (LIGHT.Instance.DatabaseCar.CheckOwner(veh.instanceID.ToString()) == "")
                     {
-                        UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.index.ToString()));
+                        UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.instanceID.ToString()));
                         if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
                         {
                             byte seat = 0;
@@ -397,18 +462,18 @@ namespace LIGHT
                         }
                         return;
                     }
-                    if (player.Id != LIGHT.Instance.DatabaseCar.CheckOwner(veh.index.ToString()))
+                    if (player.Id != LIGHT.Instance.DatabaseCar.CheckOwner(veh.instanceID.ToString()))
                     {
-                        string[] PlayersWithKey = LIGHT.Instance.DatabaseCar.GetGivenKeys(veh.index.ToString());
+                        string[] PlayersWithKey = LIGHT.Instance.DatabaseCar.GetGivenKeys(veh.instanceID.ToString());
                         for (int x = 0; x < PlayersWithKey.Length; x++)
                         {
                             if (PlayersWithKey[x].Trim() == player.Id)
                             {
-                                UnturnedChat.Say(player, LIGHT.Instance.Translate("car_key_used", veh.index.ToString()));
+                                UnturnedChat.Say(player, LIGHT.Instance.Translate("car_key_used", veh.instanceID.ToString()));
                                 return;
                             }
                         }
-                        if (LIGHT.Instance.DatabaseCar.CheckLockedStatus(veh.index.ToString()))
+                        if (LIGHT.Instance.DatabaseCar.CheckLockedStatus(veh.instanceID.ToString()))
                         {
                             byte seat = 0;
                             foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
@@ -424,7 +489,7 @@ namespace LIGHT
                         }
                         else
                         {
-                            UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("car_not_locked", LIGHT.Instance.DatabaseCar.GetOwnerName(veh.index.ToString())));
+                            UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("car_not_locked", LIGHT.Instance.DatabaseCar.GetOwnerName(veh.instanceID.ToString())));
                         }
                     }
                     else
@@ -447,8 +512,8 @@ namespace LIGHT
                         }
                         veh.kickPlayer(seat);
                     }
-                    LIGHT.Instance.DatabaseCar.AddCar(veh.index.ToString(),veh.id.ToString(),veh.name);
-                    UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy",veh.index.ToString()));
+                    LIGHT.Instance.DatabaseCar.AddCar(veh.instanceID.ToString(), veh.id.ToString(), veh.name);
+                    UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.instanceID.ToString()));
                 }
 
             }           

@@ -310,7 +310,7 @@ namespace LIGHT
                         case "adduser":
                             for (int i = permission.Length - 1; i >= 0; i--)
                             {
-                                if (permission[i] == "lpx.adduser" || permission[i] == "lpx.*" || permission[i] == "lpx.addu" || permission[i] == "*")
+                                if (permission[i] == "lpx.adduser.*" || permission[i] == "lpx.*" || permission[i] == "*" || permission[i] == "lpx.addu.*" || permission[i] == ("lpx.adduser." + param[1]) || permission[i] == ("lpx.addu." + param[1]))
                                     hasPerm = true;
                             }
                             if (!hasPerm && !console && !(caller.IsAdmin))

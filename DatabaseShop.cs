@@ -152,6 +152,28 @@ namespace LIGHT
             }
             return added;
         }
+        public bool AutoAddVehicle(int id, string name, bool exist)
+        {
+            bool added = false;
+            try
+            {
+                MySqlConnection Connection = this.createConnection();
+                MySqlCommand Command = Connection.CreateCommand();
+                if (!exist)
+                    Command.CommandText = "Insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseVehicleShop + "` (`id`,`vehiclename`,`cost`) Values('" + id.ToString() + "', '" + name + "', '" + 0 + "')";
+                else
+                    Command.CommandText = "Update `" + LIGHT.Instance.Configuration.Instance.DatabaseVehicleShop + "` set vehiclename='" + name + "' where id='" + id.ToString() + "'";
+                Connection.Open();
+                Command.ExecuteNonQuery();
+                Connection.Close();
+                added = true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return added;
+        }
         public bool CheckVehicleExist(int id)
         {
             bool exist = true;
@@ -171,6 +193,29 @@ namespace LIGHT
                 Logger.LogException(ex);
             }
             return exist;
+        }
+        public void DeleteEmptyVehicleRow(int id)
+        {
+            try
+            {
+                MySqlConnection Connection = this.createConnection();
+                MySqlCommand Command = Connection.CreateCommand();
+                Command.CommandText = "select `vehiclename` from `" + LIGHT.Instance.Configuration.Instance.DatabaseVehicleShop + "` where `id` = '" + id.ToString() + "';";
+                Connection.Open();
+                object obj = Command.ExecuteScalar();
+                Connection.Close();
+                if (obj.ToString() == "" || obj.ToString() == " ")
+                {
+                    Command.CommandText = "delete from `" + LIGHT.Instance.Configuration.Instance.DatabaseVehicleShop + "` where id='" + id.ToString() + "'";
+                    Connection.Open();
+                    Command.ExecuteNonQuery();
+                    Connection.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
         }
         public decimal GetItemCost(int id)
         {

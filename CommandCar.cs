@@ -141,7 +141,7 @@ namespace LIGHT
                                             return;
                                         }
                                         decimal bal = Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), (totalprice * -1));
-                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_refuel_paid", totalprice, Uconomy.Instance.Configuration.Instance.MoneyName, veh.index.ToString(),percent.ToString()));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_refuel_paid", totalprice, Uconomy.Instance.Configuration.Instance.MoneyName, veh.instanceID.ToString(), percent.ToString()));
                                         if (bal >= 0.0m) UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("new_balance_msg", new object[] { bal, Uconomy.Instance.Configuration.Instance.MoneyName }));
                                     }
                                     else
@@ -160,20 +160,20 @@ namespace LIGHT
                             {
                                 if (command.Length == 1)
                                 {
-                                    if(LIGHT.Instance.DatabaseCar.CheckOwner(veh.index.ToString()) == player.Id)
+                                    if (LIGHT.Instance.DatabaseCar.CheckOwner(veh.instanceID.ToString()) == player.Id)
                                     {
-                                        LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.index.ToString(), true);
-                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Locked",veh.index.ToString()));
+                                        LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.instanceID.ToString(), true);
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Locked", veh.instanceID.ToString()));
                                     }
                                     else
                                     {
-                                        string[] PlayersWithKey = LIGHT.Instance.DatabaseCar.GetGivenKeys(veh.index.ToString());
+                                        string[] PlayersWithKey = LIGHT.Instance.DatabaseCar.GetGivenKeys(veh.instanceID.ToString());
                                         for(int x = 0; x < PlayersWithKey.Length; x++)
                                         {
                                             if(PlayersWithKey[x].Trim() == player.Id)
                                             {
-                                                LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.index.ToString(), true);
-                                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Locked", veh.index.ToString()));
+                                                LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.instanceID.ToString(), true);
+                                                UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Locked", veh.instanceID.ToString()));
                                                 break;
                                             }
                                             
@@ -195,10 +195,10 @@ namespace LIGHT
                             {
                                 if (command.Length == 1)
                                 {
-                                    if (LIGHT.Instance.DatabaseCar.CheckOwner(veh.index.ToString()) == player.Id)
+                                    if (LIGHT.Instance.DatabaseCar.CheckOwner(veh.instanceID.ToString()) == player.Id)
                                     {
-                                        LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.index.ToString(), false);
-                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Unlocked", veh.index.ToString()));
+                                        LIGHT.Instance.DatabaseCar.AddLockedStatus(veh.instanceID.ToString(), false);
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_Unlocked", veh.instanceID.ToString()));
                                     }
                                     else
                                     {
@@ -276,7 +276,7 @@ namespace LIGHT
                                         
                                         percent = Math.Round(((double)repair / (double)vehi.health) * 100.00, 2);
                                         if(LIGHT.Instance.Configuration.Instance.RepairPrice == 0)
-                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_repaired", veh.index.ToString(),percent));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_repaired", veh.instanceID.ToString(), percent));
                                         else
                                         {
                                             decimal price = decimal.Parse("2");
@@ -290,14 +290,14 @@ namespace LIGHT
                                             }
                                             decimal bal = Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), (totalprice * -1));
                                             if (bal >= 0.0m) UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("new_balance_msg", new object[] { bal, Uconomy.Instance.Configuration.Instance.MoneyName }));
-                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_repaired_price", veh.index.ToString(), percent, totalprice,Uconomy.Instance.Configuration.Instance.MoneyName));
+                                            UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_repaired_price", veh.instanceID.ToString(), percent, totalprice, Uconomy.Instance.Configuration.Instance.MoneyName));
                                         }
                                         veh.askRepair((ushort)repair);
                                         
                                     }
                                     else
                                     {
-                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_repair_notneeded", veh.index.ToString()));
+                                        UnturnedChat.Say(caller, LIGHT.Instance.Translate("car_repair_notneeded", veh.instanceID.ToString()));
                                         return;
                                     }
                                 }

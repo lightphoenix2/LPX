@@ -306,7 +306,7 @@ namespace LIGHT
                 Logger.LogException(ex);
             }
             return permission;
-        }
+        }     
         public string getParentGroupPermissionString(string group)
         {
             string permission = "";
@@ -330,7 +330,7 @@ namespace LIGHT
             }
             return permission;
         }
-        public void AddUserIntoGroup(string id, string group)
+        public bool AddUserIntoGroup(string id, string group)
         {
             try
             {
@@ -358,8 +358,9 @@ namespace LIGHT
             catch (Exception ex)
             {
                 Logger.LogException(ex);
+                return false;
             }
-
+            return true;
         }
         public bool AddGroup(string group, string income,string parentgroup, string updategroup, int Updatetime, bool autoUpdate)
         {
@@ -656,6 +657,27 @@ namespace LIGHT
                 MySqlConnection connection = createConnection();
                 MySqlCommand command = connection.CreateCommand();
                 command.CommandText = "select `group` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` where `steamId` = '" + id + "'";
+                connection.Open();
+                object result = command.ExecuteScalar();
+                connection.Close();
+                if (result != null) group = result.ToString();
+                else return "default";              
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return group;
+        }
+        
+        public string CheckUserGroupByID(string GroupID)
+        {
+            string group = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `group` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` where `GroupId` = '" + GroupID + "'";
                 connection.Open();
                 object result = command.ExecuteScalar();
                 connection.Close();
@@ -1027,7 +1049,7 @@ namespace LIGHT
             }
             return Color;
         }
-        public uint? Cooldown(string group)
+        public uint Cooldown(string group)
         {
             uint cooldown = 0;
             try
@@ -1276,7 +1298,7 @@ namespace LIGHT
                     test = command.ExecuteScalar();
                     if (test == null)
                     {
-                        command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId` varchar(32) NOT NULL,`SteamName` varchar(46),`group` varchar(32),`lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,`hours` decimal(10) NOT NULL DEFAULT 0, PRIMARY KEY (`steamId`)) ";
+                        command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` (`steamId` varchar(32) NOT NULL,`SteamName` varchar(46),`group` varchar(32),`lastlogin` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,`hours` decimal(10) NOT NULL DEFAULT 0, `permission` varchar(100), PRIMARY KEY (`steamId`)) ";
                         command.ExecuteNonQuery();
                     }
                     else
@@ -1288,6 +1310,13 @@ namespace LIGHT
                             command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` ADD `SteamName` VARCHAR(46) AFTER `steamId`";
                             command.ExecuteNonQuery();
                         }
+                        command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` LIKE 'permission'";
+                        test = command.ExecuteScalar();
+                        if (test == null)
+                        {
+                            command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` ADD `permission` VARCHAR(100) AFTER `hours`";
+                            command.ExecuteNonQuery();
+                        }
                     }
 
                     command.CommandText = "show tables like '" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "'";
@@ -1295,11 +1324,11 @@ namespace LIGHT
 
                     if (test == null)
                     {
-                        command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name` varchar(32) NOT NULL,`permission` varchar(668),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitems` varchar(100),`parentgroup` varchar(32),`updategroup` varchar(32),`updatetime` decimal(10) NOT NULL DEFAULT 15.00,`updateenable` bool,`cooldown` varchar(255),PRIMARY KEY (`name`)) ";
+                        command.CommandText = "CREATE TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`groupID` int(6) NOT NULL,`name` varchar(32) NOT NULL,`permission` varchar(668),`income` decimal(10) NOT NULL DEFAULT 0.00,`freeitems` varchar(100),`parentgroup` varchar(32),`updategroup` varchar(32),`updatetime` decimal(10) NOT NULL DEFAULT 15.00,`updateenable` bool,`cooldown` varchar(255),PRIMARY KEY (`name`)) ";
                         command.ExecuteNonQuery();
-                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('default', 10,7,0)";
+                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`groupID`,`name`,`income`,`updatetime`,`updateenable`) values(1,'default', 10,7,0)";
                         command.ExecuteNonQuery();
-                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`name`,`income`,`updatetime`,`updateenable`) values('admin', 60,7,0)";
+                        command.CommandText = "insert into `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` (`groupID`,`name`,`income`,`updatetime`,`updateenable`) values(2,'admin', 60,7,0)";
                         command.ExecuteNonQuery();
                     }
                     else
@@ -1323,6 +1352,13 @@ namespace LIGHT
                         if (test == null)
                         {
                             command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` ADD `freeitems` VARCHAR(100) AFTER `income`";
+                            command.ExecuteNonQuery();
+                        }
+                        command.CommandText = "SHOW COLUMNS FROM `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` LIKE 'groupID'";
+                        test = command.ExecuteScalar();
+                        if (test == null)
+                        {
+                            command.CommandText = "ALTER TABLE `" + LIGHT.Instance.Configuration.Instance.DatabaseTableGroup + "` ADD `groupID` int(6) BEFORE `name`";
                             command.ExecuteNonQuery();
                         }
                     }

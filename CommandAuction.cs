@@ -96,17 +96,23 @@ namespace LIGHT
                     case ("buy"):
                         UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_buycommand_usage"));
                         return;
+                    case ("cancel"):
+                        UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_cancelcommand_usage"));
+                        return;
+                    case ("find"):
+                        UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_findcommand_usage"));
+                        return;
                 }
             }
             if (command.Length == 2)
             {
+                int auctionid = 0;
                 switch (command[0])
                 {
                     case ("add"):
                         UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_addcommand_usage2"));
                         return;
-                    case ("buy"):
-                        int auctionid = 0;
+                    case ("buy"):                       
                         if (int.TryParse(command[1], out auctionid))
                         {
                             try
@@ -140,6 +146,123 @@ namespace LIGHT
                         {
                             UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_addcommand_usage2"));
                             return;
+                        }
+                        break;
+                    case("cancel"):
+                        if (int.TryParse(command[1], out auctionid))
+                        {
+                            if(LIGHT.Instance.DatabaseAuction.checkAuctionExist(auctionid))
+                            {
+                                string OwnerID = LIGHT.Instance.DatabaseAuction.GetOwner(auctionid);
+                                if(OwnerID.Trim() == player.Id.Trim())
+                                {
+                                    string[] itemInfo = LIGHT.Instance.DatabaseAuction.AuctionCancel(auctionid);
+                                    player.GiveItem(ushort.Parse(itemInfo[0]), 1);
+                                    InventorySearch inventory = player.Inventory.has(ushort.Parse(itemInfo[0]));
+                                    byte index = player.Inventory.getIndex(inventory.page, inventory.jar.PositionX, inventory.jar.PositionY);
+                                    player.Inventory.updateQuality(inventory.page, index, byte.Parse(itemInfo[1]));
+                                    LIGHT.Instance.DatabaseAuction.DeleteAuction(auctionid.ToString());
+                                    UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_cancelled", auctionid));
+                                }
+                                else
+                                {
+                                    UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_notown"));
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_notexist"));
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_notexist"));
+                            return;
+                        }
+                        break;
+                    case ("find"):
+                        uint ItemID;
+                        if(uint.TryParse(command[1], out ItemID))
+                        {
+                            string[] AuctionID = LIGHT.Instance.DatabaseAuction.FindItemByID(ItemID.ToString());
+                            string Message = "";
+                            string[] ItemNameAndQuality = LIGHT.Instance.DatabaseAuction.FindAllItemNameWithQualityByID(ItemID.ToString());
+                            string[] ItemPrice = LIGHT.Instance.DatabaseAuction.FindAllItemPriceByID(ItemID.ToString());
+                            int count = 0;
+                            for (int x = 0; x < ItemNameAndQuality.Length; x++)
+                            {
+                                if (x < ItemNameAndQuality.Length - 1)
+                                    Message += "[" + AuctionID[x] + "]: " + ItemNameAndQuality[x] + " for " + ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName + ", ";
+                                else
+                                    Message += "[" + AuctionID[x] + "]: " + ItemNameAndQuality[x] + " for " + ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName;
+                                count++;
+                                if (count == 2)
+                                {
+                                    UnturnedChat.Say(player, Message);
+                                    Message = "";
+                                    count = 0;
+                                }
+                            }
+                            if (Message != "")
+                                UnturnedChat.Say(player, Message);
+                            else
+                            {
+                                UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_find_failed"));
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            Asset[] array = Assets.find(EAssetType.ITEM);
+                            Asset[] array2 = array;
+                            ushort id;
+                            string ItemName = "";
+                            for (int i = 0; i < array2.Length; i++)
+                            {
+                                ItemAsset vAsset = (ItemAsset)array2[i];
+                                if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(command[1].ToLower()))
+                                {
+                                    id = vAsset.Id;
+                                    ItemName = vAsset.Name;
+                                    break;
+                                }                             
+                            }
+                            if(ItemName != "")
+                            {
+                                string[] AuctionID = LIGHT.Instance.DatabaseAuction.FindItemByName(ItemName);
+                                string Message = "";
+                                string[] ItemNameAndQuality = LIGHT.Instance.DatabaseAuction.FindAllItemNameWithQualityByItemName(ItemName);
+                                string[] ItemPrice = LIGHT.Instance.DatabaseAuction.FindAllItemPriceByItemName(ItemName);
+                                int count = 0;
+                                for (int x = 0; x < ItemNameAndQuality.Length; x++)
+                                {
+                                    if (x < ItemNameAndQuality.Length - 1)
+                                        Message += "[" + AuctionID[x] + "]: " + ItemNameAndQuality[x] + " for " + ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName + ", ";
+                                    else
+                                        Message += "[" + AuctionID[x] + "]: " + ItemNameAndQuality[x] + " for " + ItemPrice[x] + Uconomy.Instance.Configuration.Instance.MoneyName;
+                                    count++;
+                                    if (count == 2)
+                                    {
+                                        UnturnedChat.Say(player, Message);
+                                        Message = "";
+                                        count = 0;
+                                    }
+                                }
+                                if (Message != "")
+                                    UnturnedChat.Say(player, Message);
+                                else
+                                {
+                                    UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_find_failed"));
+                                    return;
+                                }
+                            }
+                            else
+                            {
+                                UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_find_failed"));
+                                return;
+                            }
                         }
                         break;
                 }
