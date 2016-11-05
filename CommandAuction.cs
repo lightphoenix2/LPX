@@ -128,7 +128,7 @@ namespace LIGHT
                                 }                                                               
                                 player.GiveItem(ushort.Parse(itemInfo[0]), 1);
                                 InventorySearch inventory = player.Inventory.has(ushort.Parse(itemInfo[0]));
-                                byte index = player.Inventory.getIndex(inventory.page, inventory.jar.PositionX, inventory.jar.PositionY);
+                                byte index = player.Inventory.getIndex(inventory.page, inventory.jar.x, inventory.jar.y);
                                 player.Inventory.updateQuality(inventory.page, index, byte.Parse(itemInfo[3]));
                                 LIGHT.Instance.DatabaseAuction.DeleteAuction(command[1]);
                                 decimal newbal = Uconomy.Instance.Database.IncreaseBalance(player.CSteamID.ToString(), (cost * -1));
@@ -159,7 +159,7 @@ namespace LIGHT
                                     string[] itemInfo = LIGHT.Instance.DatabaseAuction.AuctionCancel(auctionid);
                                     player.GiveItem(ushort.Parse(itemInfo[0]), 1);
                                     InventorySearch inventory = player.Inventory.has(ushort.Parse(itemInfo[0]));
-                                    byte index = player.Inventory.getIndex(inventory.page, inventory.jar.PositionX, inventory.jar.PositionY);
+                                    byte index = player.Inventory.getIndex(inventory.page, inventory.jar.x, inventory.jar.y);
                                     player.Inventory.updateQuality(inventory.page, index, byte.Parse(itemInfo[1]));
                                     LIGHT.Instance.DatabaseAuction.DeleteAuction(auctionid.ToString());
                                     UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_cancelled", auctionid));
@@ -222,10 +222,10 @@ namespace LIGHT
                             for (int i = 0; i < array2.Length; i++)
                             {
                                 ItemAsset vAsset = (ItemAsset)array2[i];
-                                if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(command[1].ToLower()))
+                                if (vAsset != null && vAsset.itemName != null && vAsset.itemName.ToLower().Contains(command[1].ToLower()))
                                 {
-                                    id = vAsset.Id;
-                                    ItemName = vAsset.Name;
+                                    id = vAsset.id;
+                                    ItemName = vAsset.itemName;
                                     break;
                                 }                             
                             }
@@ -289,10 +289,10 @@ namespace LIGHT
                             for (int i = 0; i < array2.Length; i++)
                             {
                                 vAsset = (ItemAsset)array2[i];
-                                if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(itemname.ToLower()))
+                                if (vAsset != null && vAsset.itemName != null && vAsset.itemName.ToLower().Contains(itemname.ToLower()))
                                 {
-                                    id = vAsset.Id;
-                                    name = vAsset.Name;
+                                    id = vAsset.id;
+                                    name = vAsset.itemName;
                                     break;
                                 }
                             }
@@ -307,7 +307,7 @@ namespace LIGHT
                             try
                             {
                                 vAsset = (ItemAsset)Assets.find(EAssetType.ITEM, id);
-                                name = vAsset.Name;
+                                name = vAsset.itemName;
                             }
                             catch
                             {
@@ -321,7 +321,7 @@ namespace LIGHT
                             return;
                         }
                         List<InventorySearch> list = player.Inventory.search(id, true, true);                        
-                        if (vAsset.Amount > 1)
+                        if (vAsset.amount > 1)
                         {
                             UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_item_mag_ammo", name));
                             return;
@@ -337,7 +337,7 @@ namespace LIGHT
                             }
                         }
                         byte quality = 100;
-                        switch (vAsset.Amount)
+                        switch (vAsset.amount)
                         {
                             case 1:
                                 // These are single items, not ammo or magazines
@@ -345,9 +345,9 @@ namespace LIGHT
                                 {
                                     try
                                     {
-                                        if (player.Player.Equipment.checkSelection(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY))
+                                        if (player.Player.equipment.checkSelection(list[0].page, list[0].jar.x, list[0].jar.y))
                                         {
-                                            player.Player.Equipment.dequip();
+                                            player.Player.equipment.dequip();
                                         }
                                     }
                                     catch
@@ -355,8 +355,8 @@ namespace LIGHT
                                         UnturnedChat.Say(player, LIGHT.Instance.Translate("auction_unequip_item", name));
                                         return;
                                     }
-                                    quality = list[0].ItemJar.Item.Durability;
-                                    player.Inventory.removeItem(list[0].InventoryGroup, player.Inventory.getIndex(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY));
+                                    quality = list[0].jar.item.durability;
+                                    player.Inventory.removeItem(list[0].page, player.Inventory.getIndex(list[0].page, list[0].jar.x, list[0].jar.y));
                                     list.RemoveAt(0);
                                     amt--;
                                 }

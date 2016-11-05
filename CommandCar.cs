@@ -72,7 +72,7 @@ namespace LIGHT
                 }
                 else
                 {
-                    InteractableVehicle veh = player.Player.Movement.getVehicle();                    
+                    InteractableVehicle veh = player.Player.movement.getVehicle();                    
                     switch (command[0].ToLower())
                     {
                         case "refuel":

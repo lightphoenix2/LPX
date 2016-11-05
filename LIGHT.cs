@@ -67,26 +67,26 @@ namespace LIGHT
             if(LIGHT.Instance.Configuration.Instance.EnableShop && LIGHT.Instance.Configuration.Instance.EnableAutoDBUpdate)
             {
                 ItemAsset ia;
-                Logger.Log("Loading Item Database...", ConsoleColor.Yellow);
+                Rocket.Core.Logging.Logger.Log("Loading Item Database...", ConsoleColor.Yellow);
                 for(ushort x = 0; x < 60000; x++)
                 {
                     try
                     {                     
                         ia = (ItemAsset)Assets.find(EAssetType.ITEM, x);                       
                         if(ia.itemName != "" && ia.itemName != " ")
-                            LIGHT.Instance.ShopDB.AutoAddItem((int)ia.id, ia.Name, LIGHT.Instance.ShopDB.CheckItemExist(x));
+                            LIGHT.Instance.ShopDB.AutoAddItem((int)ia.id, ia.itemName, LIGHT.Instance.ShopDB.CheckItemExist(x));
                         LIGHT.Instance.ShopDB.DeleteEmptyItemRow(x);
                         if(x == 500)
-                            Logger.Log("We are halfway there...", ConsoleColor.Yellow);
+                            Rocket.Core.Logging.Logger.Log("We are halfway there...", ConsoleColor.Yellow);
                     }
                     catch
                     {
                         LIGHT.Instance.ShopDB.DeleteItem(x);
                     }
                 }
-                Logger.Log("Item Database Updated!", ConsoleColor.Yellow);
+                Rocket.Core.Logging.Logger.Log("Item Database Updated!", ConsoleColor.Yellow);
                 VehicleAsset va;
-                Logger.Log("Loading Vehicle Database...", ConsoleColor.Yellow);
+                Rocket.Core.Logging.Logger.Log("Loading Vehicle Database...", ConsoleColor.Yellow);
                 for (ushort x = 0; x < 20000; x++)
                 {
                     try
@@ -96,14 +96,14 @@ namespace LIGHT
                             LIGHT.Instance.ShopDB.AutoAddVehicle((int)va.id, va.vehicleName, LIGHT.Instance.ShopDB.CheckVehicleExist(x));
                         LIGHT.Instance.ShopDB.DeleteEmptyVehicleRow(x);
                         if (x == 50)
-                            Logger.Log("Should be quick...", ConsoleColor.Yellow);
+                            Rocket.Core.Logging.Logger.Log("Should be quick...", ConsoleColor.Yellow);
                     }
                     catch
                     {
                         LIGHT.Instance.ShopDB.DeleteVehicle(x);
                     }
                 }
-                Logger.Log("Vehicle Database Updated!", ConsoleColor.Yellow);
+                Rocket.Core.Logging.Logger.Log("Vehicle Database Updated!", ConsoleColor.Yellow);
             }
             
         }
@@ -395,7 +395,7 @@ namespace LIGHT
             
             if (stance == (byte)6 && LIGHT.Instance.Configuration.Instance.AllowCarOwnerShip)
             {
-                InteractableVehicle veh = player.Player.Movement.getVehicle();            
+                InteractableVehicle veh = player.Player.movement.getVehicle();            
                 if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(veh.instanceID.ToString()))
                 {
                     if (LIGHT.Instance.DatabaseCar.CheckCarDestoryed(veh.instanceID.ToString()) != veh.id.ToString())
@@ -430,7 +430,7 @@ namespace LIGHT
                         if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
                         {
                             byte seat = 0;
-                            foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                            foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                             {
                                 if (p.player.playerID.steamID.ToString() == player.Id)
                                 {
@@ -450,7 +450,7 @@ namespace LIGHT
                         if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
                         {
                             byte seat = 0;
-                            foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                            foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                             {
                                 if (p.player.playerID.steamID.ToString() == player.Id)
                                 {
@@ -476,7 +476,7 @@ namespace LIGHT
                         if (LIGHT.Instance.DatabaseCar.CheckLockedStatus(veh.instanceID.ToString()))
                         {
                             byte seat = 0;
-                            foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                            foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                             {
                                 if (p.player.playerID.steamID.ToString() == player.Id)
                                 {
@@ -502,7 +502,7 @@ namespace LIGHT
                     if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
                     {
                         byte seat = 0;
-                        foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                        foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                         {
                             if (p.player.playerID.steamID.ToString() == player.Id)
                             {
