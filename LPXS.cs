@@ -56,7 +56,7 @@ namespace LIGHT
                     if (pay == 0.0m)
                     {
                         // There was an error.  End it.
-                        Logger.Log(LIGHT.Instance.Translate("unable_to_pay_group_msg", new object[] { this.Player.CharacterName, "" }));
+                        Rocket.Core.Logging.Logger.Log(LIGHT.Instance.Translate("unable_to_pay_group_msg", new object[] { this.Player.CharacterName, "" }));
                         return;
                     }
                 }

@@ -156,7 +156,7 @@ namespace LIGHT
                                 }
                                 catch
                                 {
-                                    Logger.Log("Error in Kit Name or Amount. Please check your database and correct them as soon as possible.");
+                                    Rocket.Core.Logging.Logger.Log("Error in Kit Name or Amount. Please check your database and correct them as soon as possible.");
                                 }
                             }
                             UnturnedChat.Say(caller, LIGHT.Instance.Translate("kit_given", command[0]));
@@ -236,7 +236,7 @@ namespace LIGHT
                                 }
                                 catch
                                 {
-                                    Logger.Log("Error in Kit Name or Amount. Please check your database and correct them as soon as possible.");
+                                    Rocket.Core.Logging.Logger.Log("Error in Kit Name or Amount. Please check your database and correct them as soon as possible.");
                                 }
                             }
                             UnturnedChat.Say(caller, LIGHT.Instance.Translate("kit_given", name));
