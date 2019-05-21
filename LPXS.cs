@@ -7,6 +7,7 @@ using System.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using SDG.Unturned;
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace LIGHT
 {

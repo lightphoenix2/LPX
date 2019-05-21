@@ -136,11 +136,11 @@ namespace LIGHT
                                 try
                                 {
                                     VehicleAsset va = (VehicleAsset)Assets.find(EAssetType.VEHICLE, id);
-                                    message = LIGHT.Instance.Translate("changed_or_added_to_shop", new object[] { ac, va.Name, command[2] });
-                                    success = LIGHT.Instance.ShopDB.AddVehicle((int)id, va.Name, decimal.Parse(command[2]), change);
+                                    message = LIGHT.Instance.Translate("changed_or_added_to_shop", new object[] { ac, va.name, command[2] });
+                                    success = LIGHT.Instance.ShopDB.AddVehicle((int)id, va.name, decimal.Parse(command[2]), change);
                                     if (!success)
                                     {
-                                        message = LIGHT.Instance.Translate("error_adding_or_changing", new object[] { va.Name });
+                                        message = LIGHT.Instance.Translate("error_adding_or_changing", new object[] { va.name });
                                     }
                                     this.sendMessage(caller, message, console);
                                 }
@@ -154,11 +154,11 @@ namespace LIGHT
                                 try
                                 {
                                     ItemAsset ia = (ItemAsset)Assets.find(EAssetType.ITEM, id);
-                                    message = LIGHT.Instance.Translate("changed_or_added_to_shop", new object[] { ac,ia.Name,command[2]});
-                                    success = LIGHT.Instance.ShopDB.AddItem((int)id, ia.Name, decimal.Parse(command[2]), change);
+                                    message = LIGHT.Instance.Translate("changed_or_added_to_shop", new object[] { ac,ia.name,command[2]});
+                                    success = LIGHT.Instance.ShopDB.AddItem((int)id, ia.name, decimal.Parse(command[2]), change);
                                     if (!success)
                                     {
-                                        message = LIGHT.Instance.Translate("error_adding_or_changing", new object[] { ia.Name });
+                                        message = LIGHT.Instance.Translate("error_adding_or_changing", new object[] { ia.name });
                                     }
                                     this.sendMessage(caller, message, console);
                                 }
@@ -183,11 +183,11 @@ namespace LIGHT
                                 try
                                 {
                                     VehicleAsset va = (VehicleAsset)Assets.find(EAssetType.VEHICLE, id);
-                                    message = LIGHT.Instance.Translate("removed_from_shop", new object[] { va.Name });
+                                    message = LIGHT.Instance.Translate("removed_from_shop", new object[] { va.name });
                                     success = LIGHT.Instance.ShopDB.DeleteVehicle((int)id);
                                     if (!success)
                                     {
-                                        message = LIGHT.Instance.Translate("not_in_shop_to_remove", new object[] { va.Name });
+                                        message = LIGHT.Instance.Translate("not_in_shop_to_remove", new object[] { va.name });
                                     }
                                     this.sendMessage(caller, message, console);
                                 }
@@ -201,11 +201,11 @@ namespace LIGHT
                                 try
                                 {
                                     ItemAsset ia = (ItemAsset)Assets.find(EAssetType.ITEM, id);
-                                    message = LIGHT.Instance.Translate("removed_from_shop", new object[] { ia.Name });
+                                    message = LIGHT.Instance.Translate("removed_from_shop", new object[] { ia.name });
                                     success = LIGHT.Instance.ShopDB.DeleteItem((int)id);
                                     if (!success)
                                     {
-                                        message = LIGHT.Instance.Translate("not_in_shop_to_remove", new object[] { ia.Name });
+                                        message = LIGHT.Instance.Translate("not_in_shop_to_remove", new object[] { ia.name });
                                     }
                                     this.sendMessage(caller, message, console);
                                 }
@@ -228,11 +228,11 @@ namespace LIGHT
                             ItemAsset iab = (ItemAsset)Assets.find(EAssetType.ITEM, id);
                             decimal buyb;
                             decimal.TryParse(command[2], out buyb);
-                            message = LIGHT.Instance.Translate("set_buyback_price", new object[] {iab.Name, buyb.ToString()});
+                            message = LIGHT.Instance.Translate("set_buyback_price", new object[] {iab.name, buyb.ToString()});
                             success = LIGHT.Instance.ShopDB.SetBuyPrice((int)id, buyb);
                             if (!success)
                             {
-                                message = LIGHT.Instance.Translate("not_in_shop_to_buyback", new object[] { iab.Name });
+                                message = LIGHT.Instance.Translate("not_in_shop_to_buyback", new object[] { iab.name });
                             }
                             this.sendMessage(caller, message, console);
                         }

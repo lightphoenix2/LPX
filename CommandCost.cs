@@ -81,10 +81,10 @@ namespace LIGHT
                         for (int i = 0; i < array2.Length; i++)
                         {
                             VehicleAsset vAsset = (VehicleAsset)array2[i];
-                            if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(command[1].ToLower()))
+                            if (vAsset != null && vAsset.name != null && vAsset.name.ToLower().Contains(command[1].ToLower()))
                             {
-                                id = vAsset.Id;
-                                name = vAsset.Name;
+                                id = vAsset.id;
+                                name = vAsset.name;
                                 break;
                             }
                         }
@@ -98,7 +98,7 @@ namespace LIGHT
                     {
                         try
                         {
-                            name = ((VehicleAsset)Assets.find(EAssetType.VEHICLE, id)).Name;
+                            name = ((VehicleAsset)Assets.find(EAssetType.VEHICLE, id)).name;
                         }
                         catch
                         {
@@ -123,10 +123,10 @@ namespace LIGHT
                         for (int i = 0; i < array2.Length; i++)
                         {
                             ItemAsset iAsset = (ItemAsset)array2[i];
-                            if (iAsset != null && iAsset.Name != null && iAsset.Name.ToLower().Contains(command[0].ToLower()))
+                            if (iAsset != null && iAsset.name != null && iAsset.name.ToLower().Contains(command[0].ToLower()))
                             {
-                                id = iAsset.Id;
-                                name = iAsset.Name;
+                                id = iAsset.id;
+                                name = iAsset.name;
                                 break;
                             }
                         }
@@ -140,7 +140,7 @@ namespace LIGHT
                     {
                         try
                         {
-                            name = ((ItemAsset)Assets.find(EAssetType.ITEM, id)).Name;
+                            name = ((ItemAsset)Assets.find(EAssetType.ITEM, id)).name;
                         }
                         catch
                         {

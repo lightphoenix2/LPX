@@ -9,14 +9,10 @@ using UnityEngine;
 using Rocket.Core;
 using Rocket.API;
 using SDG.Unturned;
-using fr34kyn01535.Uconomy;   
-using Steamworks;
+using fr34kyn01535.Uconomy;
 using System;
 using System.Collections.Generic;
-using Rocket.Unturned.Plugins;
-using Rocket.Core.Logging;
-using Rocket.Core.Commands;
-
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace LIGHT
 {
@@ -74,7 +70,7 @@ namespace LIGHT
                     {                     
                         ia = (ItemAsset)Assets.find(EAssetType.ITEM, x);                       
                         if(ia.itemName != "" && ia.itemName != " ")
-                            LIGHT.Instance.ShopDB.AutoAddItem((int)ia.id, ia.Name, LIGHT.Instance.ShopDB.CheckItemExist(x));
+                            LIGHT.Instance.ShopDB.AutoAddItem((int)ia.id, ia.name, LIGHT.Instance.ShopDB.CheckItemExist(x));
                         LIGHT.Instance.ShopDB.DeleteEmptyItemRow(x);
                         if(x == 500)
                             Logger.Log("We are halfway there...", ConsoleColor.Yellow);
@@ -105,7 +101,9 @@ namespace LIGHT
                 }
                 Logger.Log("Vehicle Database Updated!", ConsoleColor.Yellow);
             }
-            
+            /** Ajout du reset des licences **/
+            UnturnedPlayerEvents.OnPlayerDeath += Instance.DatabaseCar.resetLicence;
+
         }
         protected override void Unload()
         {
@@ -292,7 +290,10 @@ namespace LIGHT
                 {"auction_cancelcommand_usage","/auction cancel [Auction ID]"},
                 {"auction_findcommand_usage","/auction find [Item Name or ID]"},
                 {"auction_find_invalid","Invalid Item ID or Item Name"},
-                {"auction_find_failed","No item found with that ID/Name"}
+                {"auction_find_failed","No item found with that ID/Name"},
+                {"lpx_car_licenceOK","Vous avez recu la licence n°"},
+                {"lpx_car_Forbidden","Vehicule Interdit"},
+                {"car_steal_help","/car steal [ID]"}
                 };
             }
         }
@@ -395,7 +396,7 @@ namespace LIGHT
             
             if (stance == (byte)6 && LIGHT.Instance.Configuration.Instance.AllowCarOwnerShip)
             {
-                InteractableVehicle veh = player.Player.Movement.getVehicle();            
+                InteractableVehicle veh = player.Player.movement.getVehicle();            
                 if (LIGHT.Instance.DatabaseCar.CheckCarExistInDB(veh.instanceID.ToString()))
                 {
                     if (LIGHT.Instance.DatabaseCar.CheckCarDestoryed(veh.instanceID.ToString()) != veh.id.ToString())
@@ -427,10 +428,10 @@ namespace LIGHT
                             }
                         }
                         LIGHT.Instance.DatabaseCar.RemovedDestoryedCar(veh.instanceID.ToString());
-                        if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
+                        if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar) // Vehicule avec proprio
                         {
                             byte seat = 0;
-                            foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                            foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                             {
                                 if (p.player.playerID.steamID.ToString() == player.Id)
                                 {
@@ -438,19 +439,19 @@ namespace LIGHT
                                 }
                                 seat++;
                             }
-                            veh.kickPlayer(seat);
+                            VehicleManager.sendExitVehicle(veh, seat, pos, 0, false);
                         }
                         LIGHT.Instance.DatabaseCar.AddCar(veh.instanceID.ToString(), veh.id.ToString(), veh.name);
                         UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.instanceID.ToString()));
                         return;
                     }
-                    if (LIGHT.Instance.DatabaseCar.CheckOwner(veh.instanceID.ToString()) == "")
+                    if (LIGHT.Instance.DatabaseCar.CheckOwner(veh.instanceID.ToString()) == "") // Possibilite d'achat
                     {
                         UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.instanceID.ToString()));
                         if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
                         {
                             byte seat = 0;
-                            foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                            foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                             {
                                 if (p.player.playerID.steamID.ToString() == player.Id)
                                 {
@@ -458,7 +459,7 @@ namespace LIGHT
                                 }
                                 seat++;
                             }
-                            veh.kickPlayer(seat);
+                            veh.forceRemoveAllPlayers();
                         }
                         return;
                     }
@@ -476,7 +477,7 @@ namespace LIGHT
                         if (LIGHT.Instance.DatabaseCar.CheckLockedStatus(veh.instanceID.ToString()))
                         {
                             byte seat = 0;
-                            foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                            foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                             {
                                 if (p.player.playerID.steamID.ToString() == player.Id)
                                 {
@@ -484,8 +485,9 @@ namespace LIGHT
                                 }
                                 seat++;
                             }
-                            veh.kickPlayer(seat);
+                            veh.forceRemoveAllPlayers();
                             UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_ownerfalse"));
+                            UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.instanceID.ToString()));
                         }
                         else
                         {
@@ -494,7 +496,36 @@ namespace LIGHT
                     }
                     else
                     {
-                        UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_ownertrue"));
+                        /** A la voiture mais pas forcement la licence **/
+                        decimal[] lLicencePrice = { 500, 750,/**/1000, 1500, 3500,/**/1250, 1750, 3750,/**/1500, 2000, 4000, 10000,/**/90000 };
+                        decimal licenceprice = 0;
+                        
+                        string strLicence = Instance.DatabaseCar.GetLicence(veh.id.ToString());
+                        int numLicence = Instance.DatabaseCar.convertLicenceToInt(strLicence);
+                        /** VERIFICATION LICENCE **/
+                        bool HasLicence = LIGHT.Instance.DatabaseCar.CheckLicence(player.Id, strLicence);
+                        if (!HasLicence && !player.HasPermission("Licence_" + strLicence))
+                        {
+                            licenceprice = lLicencePrice.ElementAt(numLicence);
+
+                            /** COMPARAISON PRIX **/
+                            decimal balance = Uconomy.Instance.Database.GetBalance(player.Id);
+                            if (balance < licenceprice)
+                            {
+                                UnturnedChat.Say(player, "Il vous faut " + licenceprice + " pour conduire de nouveau");
+                                veh.forceRemoveAllPlayers();
+                                return;
+                            }
+                            /** PAIEMENT **/
+                            decimal bal = Uconomy.Instance.Database.IncreaseBalance(player.Id, (licenceprice * -1));
+                            if (bal >= 0.0m)
+                                UnturnedChat.Say(player, LIGHT.Instance.Translate("new_balance_msg", new object[] { bal, Uconomy.Instance.Configuration.Instance.MoneyName }));
+                        }
+                        if (!HasLicence)
+                        {
+                            LIGHT.Instance.DatabaseCar.AddLicenceToPlayer(player.Id, strLicence);
+                            UnturnedChat.Say(player, LIGHT.Instance.Translate("lpx_car_licenceOK") + numLicence.ToString());
+                        }
                     }
                 }
                 else
@@ -502,7 +533,7 @@ namespace LIGHT
                     if (!LIGHT.Instance.Configuration.Instance.DriveUnownedCar)
                     {
                         byte seat = 0;
-                        foreach (Passenger p in player.Player.Movement.getVehicle().passengers)
+                        foreach (Passenger p in player.Player.movement.getVehicle().passengers)
                         {
                             if (p.player.playerID.steamID.ToString() == player.Id)
                             {
@@ -510,10 +541,10 @@ namespace LIGHT
                             }
                             seat++;
                         }
-                        veh.kickPlayer(seat);
+                        veh.forceRemoveAllPlayers();
                     }
                     LIGHT.Instance.DatabaseCar.AddCar(veh.instanceID.ToString(), veh.id.ToString(), veh.name);
-                    UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_promotebuy", veh.instanceID.ToString()));
+                    UnturnedChat.Say(player.CSteamID, LIGHT.Instance.Translate("lpx_car_list_all", veh.instanceID.ToString()));
                 }
 
             }           
@@ -552,6 +583,7 @@ namespace LIGHT
         }
         public void FixedUpdate()
         {
+            Instance = this;
             if (LIGHT.Instance.Configuration.Instance.SaleEnable && LIGHT.Instance.Configuration.Instance.EnableShop) sale.checkSale();
         }
     }

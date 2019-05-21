@@ -108,10 +108,10 @@ namespace LIGHT
                 for (int i = 0; i < array2.Length; i++)
                 {
                     vAsset = (ItemAsset)array2[i];
-                    if (vAsset != null && vAsset.Name != null && vAsset.Name.ToLower().Contains(ItemName.ToLower()))
+                    if (vAsset != null && vAsset.name != null && vAsset.name.ToLower().Contains(ItemName.ToLower()))
                     {
-                        id = vAsset.Id;
-                        name = vAsset.Name;
+                        id = vAsset.id;
+                        name = vAsset.name;
                         break;
                     }
                 }
@@ -126,7 +126,7 @@ namespace LIGHT
                 try
                 {
                     vAsset = (ItemAsset)Assets.find(EAssetType.ITEM, id);
-                    name = vAsset.Name;
+                    name = vAsset.name;
                 }
                 catch
                 {
@@ -140,17 +140,17 @@ namespace LIGHT
                 return;
             }
             List<InventorySearch> list = player.Inventory.search(id, true, true);
-            if (list.Count == 0 || (vAsset.Amount == 1 && list.Count < amttosell))
+            if (list.Count == 0 || (vAsset.amount == 1 && list.Count < amttosell))
             {
                 UnturnedChat.Say(player, LIGHT.Instance.Translate("not_enough_items_sell", amttosell.ToString(), name));
                 return;
             }
-            if (vAsset.Amount > 1)
+            if (vAsset.amount > 1)
             {
                 int ammomagamt = 0;
                 foreach (InventorySearch ins in list)
                 {
-                    ammomagamt += ins.ItemJar.Item.Amount;
+                    ammomagamt += ins.jar.item.amount;
                 }
                 if (ammomagamt < amttosell)
                 {
@@ -169,21 +169,21 @@ namespace LIGHT
             byte quality = 100;
             decimal peritemprice = 0;
             decimal addmoney = 0;
-            switch (vAsset.Amount)
+            switch (vAsset.amount)
             {
                 case 1:
                     // These are single items, not ammo or magazines
                     while (amttosell > 0)
                     {
-                        if (player.Player.Equipment.checkSelection(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY))
+                        if (player.Player.equipment.checkSelection(list[0].page, list[0].jar.x, list[0].jar.y))
                         {
-                            player.Player.Equipment.dequip();
+                            player.Player.equipment.dequip();
                         }
                         if (LIGHT.Instance.Configuration.Instance.QualityCounts)
-                            quality = list[0].ItemJar.Item.Durability;
+                            quality = list[0].jar.item.durability;
                         peritemprice = decimal.Round(price * (quality / 100.0m), 2);
                         addmoney += peritemprice;
-                        player.Inventory.removeItem(list[0].InventoryGroup, player.Inventory.getIndex(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY));
+                        player.Inventory.removeItem(list[0].page, player.Inventory.getIndex(list[0].page, list[0].jar.x, list[0].jar.y));
                         list.RemoveAt(0);
                         amttosell--;
                     }
@@ -193,31 +193,31 @@ namespace LIGHT
                     byte amttosell1 = amttosell;
                     while (amttosell > 0)
                     {
-                        if (player.Player.Equipment.checkSelection(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY))
+                        if (player.Player.equipment.checkSelection(list[0].page, list[0].jar.x, list[0].jar.y))
                         {
-                            player.Player.Equipment.dequip();
+                            player.Player.equipment.dequip();
                         }
-                        if (list[0].ItemJar.Item.Amount >= amttosell)
+                        if (list[0].jar.item.amount >= amttosell)
                         {
-                            byte left = (byte)(list[0].ItemJar.Item.Amount - amttosell);
-                            list[0].ItemJar.Item.Amount = left;
-                            player.Inventory.sendUpdateAmount(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY, left);
+                            byte left = (byte)(list[0].jar.item.amount - amttosell);
+                            list[0].jar.item.amount = left;
+                            player.Inventory.sendUpdateAmount(list[0].page, list[0].jar.x, list[0].jar.y, left);
                             amttosell = 0;
                             if (left == 0)
                             {
-                                player.Inventory.removeItem(list[0].InventoryGroup, player.Inventory.getIndex(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY));
+                                player.Inventory.removeItem(list[0].page, player.Inventory.getIndex(list[0].page, list[0].jar.x, list[0].jar.y));
                                 list.RemoveAt(0);
                             }
                         }
                         else
                         {
-                            amttosell -= list[0].ItemJar.Item.Amount;
-                            player.Inventory.sendUpdateAmount(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY, 0);
-                            player.Inventory.removeItem(list[0].InventoryGroup, player.Inventory.getIndex(list[0].InventoryGroup, list[0].ItemJar.PositionX, list[0].ItemJar.PositionY));
+                            amttosell -= list[0].jar.item.amount;
+                            player.Inventory.sendUpdateAmount(list[0].page, list[0].jar.x, list[0].jar.y, 0);
+                            player.Inventory.removeItem(list[0].page, player.Inventory.getIndex(list[0].page, list[0].jar.x, list[0].jar.y));
                             list.RemoveAt(0);
                         }
                     }
-                    peritemprice = decimal.Round(price * ((decimal)amttosell1 / (decimal)vAsset.Amount), 2);
+                    peritemprice = decimal.Round(price * ((decimal)amttosell1 / (decimal)vAsset.amount), 2);
                     addmoney += peritemprice;
                     break;
             }

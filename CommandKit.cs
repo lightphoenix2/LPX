@@ -10,6 +10,7 @@ using System.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using Rocket.Core.Logging;
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace LIGHT
 {
