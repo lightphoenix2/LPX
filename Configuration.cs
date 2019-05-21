@@ -28,7 +28,6 @@ namespace LIGHT
         public string DatabaseCarOwners;
         public bool AllowCarOwnerShip;
         public bool DriveUnownedCar;
-        public double LicencePrice;
         public double FuelPrice;
         public double RepairPrice;
         public bool CanBuyItems;
@@ -46,7 +45,7 @@ namespace LIGHT
         public int SaleTime;
         public bool AllowAuction;
         public string DatabaseAuction;
-        
+
 
         public void LoadDefaults()
         {
@@ -70,7 +69,6 @@ namespace LIGHT
             DatabaseCarOwners = "Car";
             AllowCarOwnerShip = true;
             DriveUnownedCar = false;
-            LicencePrice = 100.00;
             FuelPrice = 1.3;
             RepairPrice = 2;
             CanBuyItems = true;

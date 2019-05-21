@@ -70,6 +70,155 @@ namespace LIGHT
             }
             return added;
         }
+
+        public int convertLicenceToInt(string noL)
+        {
+            if (noL.Equals(""))
+                return -1;
+            if (noL.Equals("A"))
+                return 10;
+            if (noL.Equals("B"))
+                return 11;
+            if (noL.Equals("C"))
+                return 12;
+            decimal i;
+            decimal.TryParse(noL, out i);
+            return (int)i;
+        }
+
+        public void resetLicence(Rocket.Unturned.Player.UnturnedPlayer player, SDG.Unturned.EDeathCause cause, SDG.Unturned.ELimb limb, Steamworks.CSteamID murderer)
+        {
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` set `permission` = '' where `steamId` = '" + player.Id + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+        }
+
+        public string GetLicence(string carID)
+        {
+            /** Retourne le numero de la licence requise selon le vehicule, "" si le vehicule est interdit **/
+            decimal i = Decimal.Parse(carID);
+            if (i <= 32) // OffRoader HatchBack Truck Sedan
+                return "2";
+            if (i == 33) // PoliceCar
+                return "5";
+            if (i <= 50) // Firetruck Van Roadster
+                return "2";
+            if (i <= 53) // Ural Apc Humvee
+                return "8";
+            if (i == 54) // Ambulance
+                return "2";
+            if (i <= 57) // Ural Apc Humvee
+                return "8";
+            if (i == 58) // Explorer
+                return "0";
+            if (i <= 75) // SnowMobile Quad GolfCart
+                return "1";
+            if (i <= 84) // RaceCar Taxi
+                return "2";
+            if (i == 85) // Tractor
+                return "0";
+            if (i == 86) // Bus
+                return "2";
+            if (i <= 88) // Jeep
+                return "8";
+            if (i <= 91) // MakeShift
+                return "";
+            if (i == 92) // SandPiper
+                return "4";
+            if (i <= 94) // Huey
+                return "A";
+            if (i <= 96) // Skycrane Otter
+                return "4";
+            if (i <= 105) // RoundAbout JetSki
+                return "3";
+            if (i == 106) // Police Helicopter
+                return "7";
+            if (i == 107) // HummingBird
+                return "4";
+            if (i == 108) // Police Launch
+                return "6";
+            if (i == 109) // RainbowCar
+                return "C";
+            if (i <= 117) // Auto
+                return "2";
+            if (i <= 119) // Toiler Apc
+                return "8";
+            if (i <= 121) // Tank
+                return "B";
+            if (i == 122) // Luggage
+                return "0";
+            if (i == 123) // Ghost
+                return "2";
+            if (i == 124) // Dinghy
+                return "9";
+            if (i <= 132) // Rover
+                return "2";
+            if (i <= 135) // Annushka Orca Hind
+                return "A";
+            if (i == 136) // Ural
+                return "8";
+            if (i == 137) // Tank
+                return "B";
+            return "";
+        }
+
+        public bool AddLicenceToPlayer(string id, string L)
+        {
+            string perm = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` where `steamId` = '" + id + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj != null)
+                    perm = obj.ToString();
+                perm = perm + L;
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` set `permission` = '" + perm + "' where `steamId` = '" + id + "'";
+                command.ExecuteScalar();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return true;
+        }
+
+        public bool CheckLicence(string id, string sLicence)
+        {
+            string perm = "";
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "select `permission` from `" + LIGHT.Instance.Configuration.Instance.DatabaseTableName + "` where `steamId` = '" + id + "'";
+                connection.Open();
+                object obj = command.ExecuteScalar();
+                if (obj == null)
+                    return false;
+                perm = obj.ToString();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return perm.Contains(sLicence);
+        }
+
+
         public bool AddOwnership(string carNo, string playerID, string playerName)
         {
             bool added = false;
@@ -92,6 +241,28 @@ namespace LIGHT
                 Logger.LogException(ex);
             }
             return added;
+        }
+
+        public bool RemoveOwnership(string carNo)
+        {
+            try
+            {
+                MySqlConnection connection = createConnection();
+                MySqlCommand command = connection.CreateCommand();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `name` = '' where `carNo` = '" + carNo + "'";
+                connection.Open();
+                command.ExecuteScalar();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `id` = '' where `carNo` = '" + carNo + "'";
+                command.ExecuteScalar();
+                command.CommandText = "update `" + LIGHT.Instance.Configuration.Instance.DatabaseCarOwners + "` set `Locked` = 'False' where `carNo` = '" + carNo + "'";
+                command.ExecuteScalar();
+                connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Logger.LogException(ex);
+            }
+            return true;
         }
         public string CheckOwner(string CarNo)
         {
